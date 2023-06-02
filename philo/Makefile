@@ -41,7 +41,7 @@ BONUS_NAME = make_bonus
 
 # MANDATORY_SRCS = $(addprefix srcs/, \
 )
-MANDATORY_SRCS = $(wildcard src/*.c)
+MANDATORY_SRCS = $(wildcard srcs/*.c)
 MANDATORY_OBJS = $(MANDATORY_SRCS:.c=.o)
 
 #-------------------------------------------

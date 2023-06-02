@@ -10,3 +10,13 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "ft_philosophers.h"
+
+int main(int argc, char **argv)
+{
+	(void)argc;
+	(void)argv;
+	struct timeval a;
+	gettimeofday(&a, NULL);
+	printf("now is : %ld\n", a.tv_sec);
+}
