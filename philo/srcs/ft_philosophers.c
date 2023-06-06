@@ -20,9 +20,24 @@ int init_philo(int num_of_philo, int die, int eat, int sleep, int num_of_time)
 
 void *my_tread_routine(void *args)
 {
-	printf("Hi! I'm Thread!\n");
-	printf("args: %d\n", *((int *)args));
-	sleep(1);
+	while (1)
+	{
+		printf("Hi! I'm Thread!\n");
+		printf("args: %d\n", *((int *)args));
+		*(int *)args += 1;
+		usleep(5000);
+	}
+	return 0;
+}
+void *my_tread_routine2(void *args)
+{
+	while (1)
+	{
+		printf("Hi! I'm Thread2!\n");
+		printf("args: %d\n", *((int *)args));
+		*(int *)args -= 1;
+		usleep(5000);
+	}
 	return 0;
 }
 
@@ -46,10 +61,13 @@ int main(int argc, char **argv)
 	gettimeofday(&a, NULL);
 	printf("now is : %ld\n", a.tv_sec);
 
-	int my_arg = 1;
+	int my_arg = 0;
 	pthread_t my_thread;
+	pthread_t my_thread2;
 	pthread_create(&my_thread, NULL, my_tread_routine, (void *)&my_arg);
+	pthread_create(&my_thread2, NULL, my_tread_routine2, (void *)&my_arg);
 	pthread_join(my_thread, NULL); // 이게 없으면 스레드의 함수가 진행되기도전에 main의 코드가 끝나서 프로세스가 종료되어버린다
+	pthread_join(my_thread2, NULL);
 
 	// init_philo(int num_of_philo, int die, int eat, int sleep, int num_of_time);
 	return (0);
