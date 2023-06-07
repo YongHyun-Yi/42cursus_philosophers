@@ -51,6 +51,9 @@ int main(int argc, char **argv)
 	gettimeofday(&a, NULL);
 	printf("now is : %ld\n", a.tv_sec);
 
+	pthread_mutex_t my_mutex;
+	pthread_mutex_init(&my_mutex, NULL);
+
 	int my_arg = 0;
 	pthread_t my_thread;
 	pthread_t my_thread2;
