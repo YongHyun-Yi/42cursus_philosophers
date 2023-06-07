@@ -20,6 +20,15 @@
 # include <sys/time.h>
 # include <pthread.h>
 
+typedef struct s_philo_ref
+{
+	int time_to_die;
+	int time_to_eat;
+	int time_to_sleep;
+	int number_of_times_must_eat;
+	int is_anyone_die;
+}	t_philo_limit;
+
 typedef struct s_philo_info
 {
 	pthread_t **philo_arr;
@@ -39,8 +48,18 @@ typedef struct s_philo_info
 	먹는데 걸리는 시간
 	자는데 걸리는 시간
 	죽는데 걸리는 시간
+	먹어야 하는 횟수
 	-
 	이 셋은 사실상 공통되는 사항이니 상위로 빼기
+	모든 철학자가 같이 체크해봐야 하는거
+	포크, 누구하나라도 죽었는지, 각자 먹은횟수(마지막 인자가 들어왔을경우)
+	각자 먹은 횟수는 개인으로 뺴는게 나은가?
+
+	매번 상태를 확인할때마다 출력하는게 아니라
+	상태를 변경시킬때만 새로운 상태를 체크하도록
+	성능문제를 개선하기위해 빠른속도로 자신을 검사하는게 아니라 usleep으로
+	일정시간 텀을 두고 검사하도록 (대신 기다리다 죽지 않도록 잘 조절하기)
+	자는 도중에 죽으면...? (자는 동안 통짜로 sleep이 아니라 그냥 상태만 변경하고 계속적으로 상태검사를 하는건...?)
 
 */
 

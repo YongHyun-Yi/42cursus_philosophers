@@ -36,9 +36,9 @@ void *my_tread_routine2(void *args)
 		printf("Hi! I'm Thread2!\n");
 		printf("args: %d\n", *((int *)args));
 		*(int *)args -= 1;
-		// usleep(5000);
-		sleep(1);
-		pthread_exit(NULL); // exit 를 쓰면 프로세스가 종료되어버린다 pthread_exit 는 스레드만 종료시킨다
+		usleep(5000);
+		// sleep(1);
+		// pthread_exit(NULL); // exit 를 쓰면 프로세스가 종료되어버린다 pthread_exit 는 스레드만 종료시킨다
 	}
 	return 0;
 }
