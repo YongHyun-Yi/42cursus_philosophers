@@ -29,6 +29,8 @@ CC = cc
 
 # CFLAGS = -Wall -Wextra -Werror
 
+CFLAGS =
+
 INC = -I ./includes
 
 RM = rm -rf
@@ -56,7 +58,8 @@ BONUS_OBJS = $(BONUS_SRCS:.c=.o)
 all: $(NAME)
 
 %.o: %.c
-	@$(CC) $(CFLAGS) $(INC) -O3 -c $< -o $@
+	@$(CC) $(CFLAGS) $(INC) -c $< -o $@
+# -03 최적화 플래그를 사용하면 데이터 레이스가 발생하지 않는다...
 
 $(NAME): $(MANDATORY_OBJS)
 		@$(CC) $(CFLAGS) $^ -g -o $@
@@ -80,6 +83,7 @@ clean:
 		@echo $(GREEN)"\n==========================================================\n"$(EOC)
 
 fclean:
+		@make --no-print-directory clean
 		@$(RM) $(NAME) $(BONUS_NAME)
 		@echo $(GREEN)"\n==========================================================\n"$(EOC)
 		@echo $(YELLOW)"                     PHILOSOPHER FCLEAN"
