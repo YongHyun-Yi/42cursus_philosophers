@@ -22,18 +22,24 @@
 
 typedef struct s_philo_ref
 {
+	int number_of_philosophers;
 	int time_to_die;
 	int time_to_eat;
 	int time_to_sleep;
 	int number_of_times_must_eat;
 	int is_anyone_die;
-}	t_philo_limit;
+}	t_philo_ref;
 
 typedef struct s_philo_info
 {
-	pthread_t **philo_arr;
+	pthread_t *philo_arr;
 	int *fork_arr;
 }	t_philo_info;
+
+typedef struct s_philo_stat
+{
+	int last_lifetime
+}	t_philo_stat;
 
 /*
 
@@ -43,6 +49,7 @@ typedef struct s_philo_info
 	자신의 현재 상태 (먹는중, 자는중, 생각하는중)
 	자신이 마지막으로 먹은 시간, 이 시간으로 상태를 변화시킨다 (이를 기준으로 생사를 판단한다)
 	자신이 마지막으로 잠든 시간, 이 시간으로 상태를 변화시킨다
+	자신이 몇 번 먹었는지
 
 	-
 	먹는데 걸리는 시간
