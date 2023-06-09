@@ -34,6 +34,7 @@ typedef struct s_philo_ref
 
 typedef struct s_philo_stat
 {
+	s_philo_ref *philo_ref;
 	pthread_t *philo_thread;
 	int philo_num;
 	int cur_state;
