@@ -29,18 +29,31 @@ typedef struct s_philo_ref
 	int time_to_sleep;
 	int number_of_times_must_eat;
 	int is_anyone_die;
-}	t_philo_ref;
-
-typedef struct s_philo_info
-{
-	pthread_t *philo_arr;
 	int *fork_arr;
-}	t_philo_info;
+}	t_philo_ref;
 
 typedef struct s_philo_stat
 {
-	int lifetime;
+	pthread_t *philo_thread;
+	int philo_num;
+	int cur_state;
+	int how_much_eat;
+	int last_time_to_eat;
+	int last_time_to_sleep;
 }	t_philo_stat;
+
+typedef struct s_philo_info
+{
+	t_philo_ref philo_ref;
+	t_philo_stat *philo_stat;
+}	t_philo_info;
+
+typedef enum e_philo_state
+{
+	THINK,
+	EAT,
+	SLEEP
+}	t_philo_state;
 
 int	ft_strisnum(char *str);
 int	ft_atoi(const char *str);
@@ -71,6 +84,29 @@ int	ft_atoi(const char *str);
 	성능문제를 개선하기위해 빠른속도로 자신을 검사하는게 아니라 usleep으로
 	일정시간 텀을 두고 검사하도록 (대신 기다리다 죽지 않도록 잘 조절하기)
 	자는 도중에 죽으면...? (자는 동안 통짜로 sleep이 아니라 그냥 상태만 변경하고 계속적으로 상태검사를 하는건...?)
+
+*/
+
+/*
+
+	스레드 생성
+	check 라는 mutex에 lock을 시도
+	열려있다면 lock을 한 후
+	1. is_anyone_die 를 참조하여 누군가 죽었는지 확인, 죽었으면 스레드 종료
+	2. last_time_to_eat 과 time_to_die 를 비교하여 죽었는지 확인, 죽었으면 is_anyone_die 를 업데이트하고 스레드 종료
+	3. cur_state 를 참조하여 think 라면 fork 배열애서 내가 사용해야하는 fork 들의 상태를 확인
+	3-1. fork 가 사용가능하다면 fork 의 상태를 변경하고 state 를 변경 후 last_time_to_eat 을 수행
+	3-2. fork 가 사용불가능하다면 그대로 pass
+	4. eat 라면 last_time_to_eat 과 time_to_eat 을 비교하여 다 먹었는지 확인
+	4-1. 다 먹었다면 fork 의 상태를 변경하고 state 를 변경
+	4-1-1. 먹은 횟수를 세야한다면 how_much_eat +1 후 number_of_times_must_eat 과 how_much_eat 를 비교, 충족하면 스레드 종료
+	4-2. 아직 더 먹어야 한다면 그대로 pass
+	5. sleep 이라면 last_time_to_sleep 과 time_to_sleep 을 비교
+	5-1. 다 잤다면 state 를 변경
+	5-2. 아직 더 자야 한다면 그대로 pass
+	6. 위의 과정이 모두 끝나면 check 를 mutex_unlock 을 수행
+
+	@ 필요하다면 같은 스레드가 곧바로 cpu를 다시 할당받는것을 방지하기위해 usleep 을 걸어주기...?
 
 */
 
