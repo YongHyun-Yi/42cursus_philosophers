@@ -29,13 +29,15 @@ typedef struct s_philo_ref
 	int time_to_sleep;
 	int number_of_times_must_eat;
 	int is_anyone_die;
+	pthread_mutex_t check;
 	int *fork_arr;
 }	t_philo_ref;
 
 typedef struct s_philo_stat
 {
-	s_philo_ref *philo_ref;
-	pthread_t *philo_thread;
+	t_philo_ref *philo_ref;
+	// pthread_t *philo_thread;
+	pthread_t philo_thread;
 	int philo_num;
 	int cur_state;
 	int how_much_eat;
@@ -58,6 +60,8 @@ typedef enum e_philo_state
 
 int	ft_strisnum(char *str);
 int	ft_atoi(const char *str);
+void	ft_putnbr_fd(int n, int fd);
+void	ft_putchar_fd(char c, int fd);
 
 /*
 
