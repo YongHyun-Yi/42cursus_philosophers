@@ -45,12 +45,6 @@ typedef struct s_philo_stat
 	int last_time_to_sleep;
 }	t_philo_stat;
 
-typedef struct s_philo_info
-{
-	t_philo_ref philo_ref;
-	t_philo_stat *philo_stat;
-}	t_philo_info;
-
 typedef enum e_philo_state
 {
 	THINK,

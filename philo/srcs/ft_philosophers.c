@@ -27,14 +27,11 @@ void *philo_routine(void* args)
 	t_philo_stat *philo_stat;
 
 	philo_stat = (t_philo_stat *)args;
-	// if (philo_stat->philo_num % 2)
-		// usleep(200);
-	// pthread_mutex_lock(&philo_stat->philo_ref->check);
-	// write(1, "I'm philosopher ", 16);
-	// ft_putnbr_fd(philo_stat->philo_num, 1);
-	// write(1, "\n", 1);
+	if (philo_stat->philo_num % 2)
+		usleep(100);
+	pthread_mutex_lock(&philo_stat->philo_ref->check);
 	printf("I'm philosopher %d\n", philo_stat->philo_num);
-	// pthread_mutex_unlock(&philo_stat->philo_ref->check);
+	pthread_mutex_unlock(&philo_stat->philo_ref->check);
 	
 	return (NULL);
 }
@@ -101,17 +98,14 @@ int main(int argc, char **argv)
 
 	if (!init_philo(&philo_ref, philo_arr))
 		return (0);
-	// sleep(1);
+	usleep(200);
+
 	cnt = 0;
 	while (cnt < philo_ref.number_of_philosophers)
 	{
-		// pthread_join(*philo_arr[cnt].philo_thread, NULL);
 		pthread_join(philo_arr[cnt].philo_thread, NULL);
 		cnt++;
 	}
-	// pthread_join(philo_arr[5].philo_thread, NULL);
-	// for (int i = 0; i < philo_ref.number_of_philosophers; i++)
-		// pthread_join(philo_arr[i].philo_thread, NULL);
 	
 	return (0);
 }
