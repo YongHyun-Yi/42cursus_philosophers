@@ -19,6 +19,7 @@
 # include <unistd.h>
 # include <sys/time.h>
 # include <pthread.h>
+# include <limits.h>
 
 typedef struct s_philo_ref
 {
@@ -38,8 +39,11 @@ typedef struct s_philo_info
 
 typedef struct s_philo_stat
 {
-	int last_lifetime
+	int lifetime;
 }	t_philo_stat;
+
+int	ft_strisnum(char *str);
+int	ft_atoi(const char *str);
 
 /*
 
