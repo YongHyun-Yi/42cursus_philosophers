@@ -62,7 +62,7 @@ all: $(NAME)
 # -03 최적화 플래그를 사용하면 데이터 레이스가 발생하지 않는다...
 
 $(NAME): $(MANDATORY_OBJS)
-		@$(CC) $(CFLAGS) $^ -g -o $@
+		@$(CC) $(CFLAGS) $^ -o $@
 		@echo $(GREEN)"\n==========================================================\n"$(EOC)
 		@echo $(YELLOW)"                     PHILOSOPHER DONE"$(EOC)
 		@echo $(GREEN)"\n==========================================================\n"$(EOC)
@@ -70,7 +70,7 @@ $(NAME): $(MANDATORY_OBJS)
 bonus: $(BONUS_NAME)
 
 $(BONUS_NAME): $(BONUS_OBJS)
-		@$(CC) $(CFLAGS) $^ -g -o $(NAME)
+		@$(CC) $(CFLAGS) $^ -o $(NAME)
 		@touch $@
 		@echo $(GREEN)"\n==========================================================\n"$(EOC)
 		@echo $(YELLOW)"                  PHILOSOPHER BONUS DONE"$(EOC)

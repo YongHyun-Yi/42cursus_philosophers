@@ -41,8 +41,8 @@ typedef struct s_philo_stat
 	int philo_num;
 	int cur_state;
 	int how_much_eat;
-	int last_time_to_eat;
-	int last_time_to_sleep;
+	long last_time_to_eat;
+	long last_time_to_sleep;
 }	t_philo_stat;
 
 typedef enum e_philo_state

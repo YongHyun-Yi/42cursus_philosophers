@@ -12,6 +12,15 @@
 
 #include "ft_philosophers.h"
 
+void *foo(void *arg)
+{
+	while (1)
+	{
+		printf("foo: %d\n", *(int *)arg);
+		usleep(200);
+	}
+}
+
 void print_err_msg(void)
 {
 	printf("\033[1;31mInvalid arguments!\n");
@@ -45,15 +54,14 @@ void *philo_routine(void* args)
 	{
 		// pthread_mutex_lock(&philo_stat->philo_ref->check);
 
-		if (philo_stat->philo_ref->is_anyone_die)
-			return (NULL);
+		// if (philo_stat->philo_ref->is_anyone_die)
+			// return (NULL);
 		printf("I'm philosopher %d\n", philo_stat->philo_num);
 
 		// pthread_mutex_unlock(&philo_stat->philo_ref->check);
 
-		// usleep(200);
+		usleep(200);
 	}
-	return (NULL);
 }
 
 int init_philo(t_philo_ref *philo_ref, t_philo_stat *philo_arr)
@@ -64,14 +72,15 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat *philo_arr)
 	philo_arr = (t_philo_stat *)malloc(sizeof(t_philo_stat) * philo_ref->number_of_philosophers);
 	if (philo_arr == NULL)
 		return (0);
-	memset(philo_arr, -1, sizeof(t_philo_stat) * philo_ref->number_of_philosophers);
+	memset(philo_arr, 0, sizeof(t_philo_stat) * philo_ref->number_of_philosophers);
 	cnt = 0;
 	while (cnt < philo_ref->number_of_philosophers)
 	// while (cnt < 2)
 	{
 		philo_arr[cnt].philo_num = cnt;
 		philo_arr[cnt].philo_ref = philo_ref;
-		pthread_create(&philo_arr[cnt].philo_thread, NULL, philo_routine, (void *)&philo_arr[cnt]);
+		// pthread_create(&philo_arr[cnt].philo_thread, NULL, philo_routine, (void *)&philo_arr[cnt]);
+		pthread_create(&(philo_arr[cnt].philo_thread), NULL, foo, (void *)(&(philo_arr[cnt].philo_num)));
 		cnt++;
 	}
 	return (1);
@@ -109,7 +118,7 @@ int main(int argc, char **argv)
 
 	(void)argc;
 	(void)argv;
-	memset(&philo_ref, 0, sizeof(t_philo_ref));
+	memset(&philo_ref, -1, sizeof(t_philo_ref));
 
 	if (!parse_philo(&philo_ref, argc, argv))
 	{
@@ -122,12 +131,25 @@ int main(int argc, char **argv)
 	usleep(200);
 
 	cnt = 0;
-	// while (cnt < philo_ref.number_of_philosophers)
-	// {
-	// 	pthread_join(philo_arr[cnt].philo_thread, NULL);
-	// 	cnt++;
-	// }
+	while (cnt < philo_ref.number_of_philosophers)
+	{
+		pthread_join(philo_arr[cnt].philo_thread, NULL);
+		cnt++;
+	}
 	pthread_join(philo_arr[0].philo_thread, NULL);
 	pthread_join(philo_arr[1].philo_thread, NULL);
+
+	// -------------
+
+	// pthread_t tr1;
+	// int tr1a = 1;
+	// pthread_t tr2;
+	// int tr2a = 2;
+	// pthread_create(&tr1, NULL, foo, (void *)&tr1a);
+	// pthread_create(&tr2, NULL, foo, (void *)&tr2a);
+
+	// pthread_join(tr1, NULL);
+	// pthread_join(tr2, NULL);
+
 	return (0);
 }
