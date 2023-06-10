@@ -46,19 +46,92 @@ void *philo_routine(void* args)
 	t_philo_stat *philo_stat;
 
 	philo_stat = (t_philo_stat *)args;
-	// if (philo_stat->philo_num % 2)
-		// usleep(100);
+	printf("I'm philosopher %d\n", philo_stat->philo_num);
 
-	// for (int i = 0; i < 3; i++)
+	if (philo_stat->philo_num % 2)
+		usleep(100);
+
 	while (1)
 	{
-		// pthread_mutex_lock(&philo_stat->philo_ref->check);
+		pthread_mutex_lock(&philo_stat->philo_ref->check);
 
-		// if (philo_stat->philo_ref->is_anyone_die)
-			// return (NULL);
-		printf("I'm philosopher %d\n", philo_stat->philo_num);
+		printf("mutex 1\n");
 
-		// pthread_mutex_unlock(&philo_stat->philo_ref->check);
+		if (philo_stat->philo_ref->is_anyone_die)
+		{
+			pthread_mutex_unlock(&philo_stat->philo_ref->check);
+			return (NULL);
+		}
+		
+		long cmp_time = my_gettimeofday();
+
+		printf("mutex 2\n");
+		
+		if (cmp_time - philo_stat->last_time_to_eat > philo_stat->philo_ref->time_to_die)
+		{
+			philo_stat->philo_ref->is_anyone_die = 1;
+			printf("philosopher %d Die...\n", philo_stat->philo_num);
+			pthread_mutex_unlock(&philo_stat->philo_ref->check);
+			return (NULL);
+		}
+
+		printf("mutex 3\n");
+
+		if (philo_stat->cur_state == THINK)
+		{
+			if (philo_stat->philo_ref->fork_arr[philo_stat->philo_num] == 0)
+			{
+				if (philo_stat->philo_num == philo_stat->philo_ref->number_of_philosophers - 1)
+				{
+					if (philo_stat->philo_ref->fork_arr[0] == 0)
+					{
+						philo_stat->philo_ref->fork_arr[philo_stat->philo_num] = 1;
+						philo_stat->philo_ref->fork_arr[0] = 1;
+						philo_stat->cur_state = EAT;
+						philo_stat->last_time_to_eat = my_gettimeofday();
+						printf("philosopher %d Eating...\n", philo_stat->philo_num);
+					}
+				}
+				else if (philo_stat->philo_ref->fork_arr[philo_stat->philo_num + 1] == 0)
+				{
+					philo_stat->philo_ref->fork_arr[philo_stat->philo_num] = 1;
+					philo_stat->philo_ref->fork_arr[philo_stat->philo_num + 1] = 1;
+					philo_stat->cur_state = EAT;
+					philo_stat->last_time_to_eat = my_gettimeofday();
+					printf("philosopher %d Eating...\n", philo_stat->philo_num);
+				}
+			}
+		}
+
+		else if (philo_stat->cur_state == EAT)
+		{
+			cmp_time = my_gettimeofday();
+
+			if (cmp_time - philo_stat->last_time_to_eat >= philo_stat->philo_ref->time_to_eat)
+			{
+				philo_stat->philo_ref->fork_arr[philo_stat->philo_num] = 0;
+				if (philo_stat->philo_num == philo_stat->philo_ref->number_of_philosophers - 1)
+					philo_stat->philo_ref->fork_arr[0] = 0;
+				else
+					philo_stat->philo_ref->fork_arr[philo_stat->philo_num + 1] = 0;
+				philo_stat->cur_state = SLEEP;
+				philo_stat->last_time_to_sleep = my_gettimeofday();
+				printf("philosopher %d Sleeping...\n", philo_stat->philo_num);
+			}
+		}
+
+		else // sleep
+		{
+			cmp_time = my_gettimeofday();
+
+			if (cmp_time - philo_stat->last_time_to_sleep >= philo_stat->philo_ref->time_to_sleep)
+			{
+				philo_stat->cur_state = THINK;
+				printf("philosopher %d Thinking...\n", philo_stat->philo_num);
+			}
+		}
+
+		pthread_mutex_unlock(&philo_stat->philo_ref->check);
 
 		usleep(200);
 	}
@@ -77,19 +150,13 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 	
 	cnt = 0;
 	while (cnt < philo_ref->number_of_philosophers)
-	// while (cnt < 2)
 	{
 		(*philo_arr)[cnt].philo_num = cnt;
+		// (*philo_arr)[cnt].last_time_to_eat = my_gettimeofday();
 		(*philo_arr)[cnt].philo_ref = philo_ref;
 		pthread_create(&(*philo_arr)[cnt].philo_thread, NULL, philo_routine, (void *)&(*philo_arr)[cnt]);
-		// pthread_create(&(philo_arr[cnt].philo_thread), NULL, foo, (void *)(&(philo_arr[cnt].philo_num)));
 		cnt++;
 	}
-
-	// pthread_t my_tr;
-	// int *ab = malloc(sizeof(int));
-	// *ab = 3;
-	// pthread_create(&my_tr, NULL, foo, (void *)ab);
 	return (1);
 }
 
@@ -125,7 +192,7 @@ int main(int argc, char **argv)
 
 	(void)argc;
 	(void)argv;
-	memset(&philo_ref, -1, sizeof(t_philo_ref));
+	memset(&philo_ref, 0, sizeof(t_philo_ref));
 
 	if (!parse_philo(&philo_ref, argc, argv))
 	{
@@ -135,7 +202,6 @@ int main(int argc, char **argv)
 
 	if (!init_philo(&philo_ref, &philo_arr))
 		return (0);
-	usleep(200);
 
 	cnt = 0;
 	while (cnt < philo_ref.number_of_philosophers)
@@ -143,18 +209,6 @@ int main(int argc, char **argv)
 		pthread_join(philo_arr[cnt].philo_thread, NULL);
 		cnt++;
 	}
-
-	// -------------
-
-	// pthread_t tr1;
-	// int tr1a = 1;
-	// pthread_t tr2;
-	// int tr2a = 2;
-	// pthread_create(&tr1, NULL, foo, (void *)&tr1a);
-	// pthread_create(&tr2, NULL, foo, (void *)&tr2a);
-
-	// pthread_join(tr1, NULL);
-	// pthread_join(tr2, NULL);
-
+	
 	return (0);
 }
