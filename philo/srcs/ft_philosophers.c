@@ -24,13 +24,11 @@ void print_err_msg(void)
 
 long my_gettimeofday(void)
 {
-	struct timeval	*tv;
+	struct timeval	tv;
 	long ret;
 
-	tv = malloc(sizeof(struct timeval *));
-	gettimeofday(tv, NULL);
-	ret = tv->tv_usec;
-	free(tv);
+	gettimeofday(&tv, NULL);
+	ret = tv.tv_sec * 1000 + tv.tv_usec / 1000;
 	return (ret);
 }
 
@@ -39,21 +37,21 @@ void *philo_routine(void* args)
 	t_philo_stat *philo_stat;
 
 	philo_stat = (t_philo_stat *)args;
-	if (philo_stat->philo_num % 2)
-		usleep(100);
-	printf("I'm philosopher %d\n", philo_stat->philo_num);
+	// if (philo_stat->philo_num % 2)
+		// usleep(100);
 
 	// for (int i = 0; i < 3; i++)
 	while (1)
 	{
-		pthread_mutex_lock(&philo_stat->philo_ref->check);
+		// pthread_mutex_lock(&philo_stat->philo_ref->check);
 
 		if (philo_stat->philo_ref->is_anyone_die)
 			return (NULL);
-		
-		
+		printf("I'm philosopher %d\n", philo_stat->philo_num);
 
-		pthread_mutex_unlock(&philo_stat->philo_ref->check);
+		// pthread_mutex_unlock(&philo_stat->philo_ref->check);
+
+		// usleep(200);
 	}
 	return (NULL);
 }
@@ -69,6 +67,7 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat *philo_arr)
 	memset(philo_arr, -1, sizeof(t_philo_stat) * philo_ref->number_of_philosophers);
 	cnt = 0;
 	while (cnt < philo_ref->number_of_philosophers)
+	// while (cnt < 2)
 	{
 		philo_arr[cnt].philo_num = cnt;
 		philo_arr[cnt].philo_ref = philo_ref;
@@ -108,10 +107,6 @@ int main(int argc, char **argv)
 	t_philo_stat	*philo_arr;
 	int cnt;
 
-	printf("cur usec1: %ld\n", my_gettimeofday());
-	usleep(1000);
-	printf("cur usec2: %ld\n", my_gettimeofday());
-
 	(void)argc;
 	(void)argv;
 	memset(&philo_ref, 0, sizeof(t_philo_ref));
@@ -127,10 +122,12 @@ int main(int argc, char **argv)
 	usleep(200);
 
 	cnt = 0;
-	while (cnt < philo_ref.number_of_philosophers)
-	{
-		pthread_join(philo_arr[cnt].philo_thread, NULL);
-		cnt++;
-	}
+	// while (cnt < philo_ref.number_of_philosophers)
+	// {
+	// 	pthread_join(philo_arr[cnt].philo_thread, NULL);
+	// 	cnt++;
+	// }
+	pthread_join(philo_arr[0].philo_thread, NULL);
+	pthread_join(philo_arr[1].philo_thread, NULL);
 	return (0);
 }
