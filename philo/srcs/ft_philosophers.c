@@ -22,6 +22,18 @@ void print_err_msg(void)
 	printf("Must Eat ]⌟\033[0;0m\n");
 }
 
+long my_gettimeofday(void)
+{
+	struct timeval	*tv;
+	long ret;
+
+	tv = malloc(sizeof(struct timeval *));
+	gettimeofday(tv, NULL);
+	ret = tv->tv_usec;
+	free(tv);
+	return (ret);
+}
+
 void *philo_routine(void* args)
 {
 	t_philo_stat *philo_stat;
@@ -29,10 +41,20 @@ void *philo_routine(void* args)
 	philo_stat = (t_philo_stat *)args;
 	if (philo_stat->philo_num % 2)
 		usleep(100);
-	pthread_mutex_lock(&philo_stat->philo_ref->check);
 	printf("I'm philosopher %d\n", philo_stat->philo_num);
-	pthread_mutex_unlock(&philo_stat->philo_ref->check);
-	
+
+	// for (int i = 0; i < 3; i++)
+	while (1)
+	{
+		pthread_mutex_lock(&philo_stat->philo_ref->check);
+
+		if (philo_stat->philo_ref->is_anyone_die)
+			return (NULL);
+		
+		
+
+		pthread_mutex_unlock(&philo_stat->philo_ref->check);
+	}
 	return (NULL);
 }
 
@@ -86,6 +108,10 @@ int main(int argc, char **argv)
 	t_philo_stat	*philo_arr;
 	int cnt;
 
+	printf("cur usec1: %ld\n", my_gettimeofday());
+	usleep(1000);
+	printf("cur usec2: %ld\n", my_gettimeofday());
+
 	(void)argc;
 	(void)argv;
 	memset(&philo_ref, 0, sizeof(t_philo_ref));
@@ -106,6 +132,5 @@ int main(int argc, char **argv)
 		pthread_join(philo_arr[cnt].philo_thread, NULL);
 		cnt++;
 	}
-	
 	return (0);
 }
