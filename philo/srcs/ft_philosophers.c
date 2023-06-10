@@ -64,25 +64,32 @@ void *philo_routine(void* args)
 	}
 }
 
-int init_philo(t_philo_ref *philo_ref, t_philo_stat *philo_arr)
+int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 {
 	int cnt;
 
 	pthread_mutex_init(&philo_ref->check, NULL);
-	philo_arr = (t_philo_stat *)malloc(sizeof(t_philo_stat) * philo_ref->number_of_philosophers);
-	if (philo_arr == NULL)
+	
+	*philo_arr = (t_philo_stat *)malloc(sizeof(t_philo_stat) * philo_ref->number_of_philosophers);
+	if (*philo_arr == NULL)
 		return (0);
-	memset(philo_arr, 0, sizeof(t_philo_stat) * philo_ref->number_of_philosophers);
+	memset(*philo_arr, 0, sizeof(t_philo_stat) * philo_ref->number_of_philosophers);
+	
 	cnt = 0;
 	while (cnt < philo_ref->number_of_philosophers)
 	// while (cnt < 2)
 	{
-		philo_arr[cnt].philo_num = cnt;
-		philo_arr[cnt].philo_ref = philo_ref;
-		// pthread_create(&philo_arr[cnt].philo_thread, NULL, philo_routine, (void *)&philo_arr[cnt]);
-		pthread_create(&(philo_arr[cnt].philo_thread), NULL, foo, (void *)(&(philo_arr[cnt].philo_num)));
+		(*philo_arr)[cnt].philo_num = cnt;
+		(*philo_arr)[cnt].philo_ref = philo_ref;
+		pthread_create(&(*philo_arr)[cnt].philo_thread, NULL, philo_routine, (void *)&(*philo_arr)[cnt]);
+		// pthread_create(&(philo_arr[cnt].philo_thread), NULL, foo, (void *)(&(philo_arr[cnt].philo_num)));
 		cnt++;
 	}
+
+	// pthread_t my_tr;
+	// int *ab = malloc(sizeof(int));
+	// *ab = 3;
+	// pthread_create(&my_tr, NULL, foo, (void *)ab);
 	return (1);
 }
 
@@ -126,7 +133,7 @@ int main(int argc, char **argv)
 		return (0);
 	}
 
-	if (!init_philo(&philo_ref, philo_arr))
+	if (!init_philo(&philo_ref, &philo_arr))
 		return (0);
 	usleep(200);
 
@@ -136,8 +143,6 @@ int main(int argc, char **argv)
 		pthread_join(philo_arr[cnt].philo_thread, NULL);
 		cnt++;
 	}
-	pthread_join(philo_arr[0].philo_thread, NULL);
-	pthread_join(philo_arr[1].philo_thread, NULL);
 
 	// -------------
 
