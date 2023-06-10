@@ -12,13 +12,12 @@
 
 #include "ft_philosophers.h"
 
-void *foo(void *arg)
+void print_philo(t_philo_stat *philo_stat, long time, char *state)
 {
-	while (1)
-	{
-		printf("foo: %d\n", *(int *)arg);
-		usleep(200);
-	}
+	long print_time;
+
+	print_time = time - philo_stat->philo_ref->start_time;
+	printf("%ld %d %s\n", print_time, philo_stat->philo_num, state);
 }
 
 void print_err_msg(void)
@@ -31,22 +30,12 @@ void print_err_msg(void)
 	printf("Must Eat ]⌟\033[0;0m\n");
 }
 
-long my_gettimeofday(void)
-{
-	struct timeval	tv;
-	long ret;
-
-	gettimeofday(&tv, NULL);
-	ret = tv.tv_sec * 1000 + tv.tv_usec / 1000;
-	return (ret);
-}
-
 void *philo_routine(void* args)
 {
 	t_philo_stat *philo_stat;
 
 	philo_stat = (t_philo_stat *)args;
-	printf("I'm philosopher %d\n", philo_stat->philo_num);
+	// printf("I'm philosopher %d\n", philo_stat->philo_num);
 
 	if (philo_stat->philo_num % 2)
 		usleep(100);
@@ -55,7 +44,11 @@ void *philo_routine(void* args)
 	{
 		pthread_mutex_lock(&philo_stat->philo_ref->check);
 
-		printf("mutex 1\n");
+		if (philo_stat->philo_ref->number_of_times_must_eat == philo_stat->how_much_eat)
+		{
+			pthread_mutex_unlock(&philo_stat->philo_ref->check);
+			return (NULL);
+		}
 
 		if (philo_stat->philo_ref->is_anyone_die)
 		{
@@ -65,17 +58,14 @@ void *philo_routine(void* args)
 		
 		long cmp_time = my_gettimeofday();
 
-		printf("mutex 2\n");
-		
 		if (cmp_time - philo_stat->last_time_to_eat > philo_stat->philo_ref->time_to_die)
 		{
 			philo_stat->philo_ref->is_anyone_die = 1;
-			printf("philosopher %d Die...\n", philo_stat->philo_num);
+			// printf("philosopher %d Die...\n", philo_stat->philo_num);
+			print_philo(philo_stat, my_gettimeofday(), "died");
 			pthread_mutex_unlock(&philo_stat->philo_ref->check);
 			return (NULL);
 		}
-
-		printf("mutex 3\n");
 
 		if (philo_stat->cur_state == THINK)
 		{
@@ -89,7 +79,8 @@ void *philo_routine(void* args)
 						philo_stat->philo_ref->fork_arr[0] = 1;
 						philo_stat->cur_state = EAT;
 						philo_stat->last_time_to_eat = my_gettimeofday();
-						printf("philosopher %d Eating...\n", philo_stat->philo_num);
+						// printf("philosopher %d Eating...\n", philo_stat->philo_num);
+						print_philo(philo_stat, philo_stat->last_time_to_eat, "is eating");
 					}
 				}
 				else if (philo_stat->philo_ref->fork_arr[philo_stat->philo_num + 1] == 0)
@@ -98,7 +89,8 @@ void *philo_routine(void* args)
 					philo_stat->philo_ref->fork_arr[philo_stat->philo_num + 1] = 1;
 					philo_stat->cur_state = EAT;
 					philo_stat->last_time_to_eat = my_gettimeofday();
-					printf("philosopher %d Eating...\n", philo_stat->philo_num);
+					// printf("philosopher %d Eating...\n", philo_stat->philo_num);
+					print_philo(philo_stat, philo_stat->last_time_to_eat, "is eating");
 				}
 			}
 		}
@@ -107,16 +99,28 @@ void *philo_routine(void* args)
 		{
 			cmp_time = my_gettimeofday();
 
-			if (cmp_time - philo_stat->last_time_to_eat >= philo_stat->philo_ref->time_to_eat)
+			if (cmp_time - philo_stat->last_time_to_eat >= philo_stat->philo_ref->time_to_eat) // 다 먹었을 때
 			{
 				philo_stat->philo_ref->fork_arr[philo_stat->philo_num] = 0;
 				if (philo_stat->philo_num == philo_stat->philo_ref->number_of_philosophers - 1)
 					philo_stat->philo_ref->fork_arr[0] = 0;
 				else
 					philo_stat->philo_ref->fork_arr[philo_stat->philo_num + 1] = 0;
+
+				if (philo_stat->philo_ref->number_of_times_must_eat != -1)
+				{
+					philo_stat->how_much_eat += 1;
+					if (philo_stat->philo_ref->number_of_times_must_eat == philo_stat->how_much_eat)
+					{
+						pthread_mutex_unlock(&philo_stat->philo_ref->check);
+						return (NULL);
+					}
+				}
+				
 				philo_stat->cur_state = SLEEP;
 				philo_stat->last_time_to_sleep = my_gettimeofday();
-				printf("philosopher %d Sleeping...\n", philo_stat->philo_num);
+				// printf("philosopher %d Sleeping...\n", philo_stat->philo_num);
+				print_philo(philo_stat, philo_stat->last_time_to_sleep, "is sleeping");
 			}
 		}
 
@@ -127,32 +131,39 @@ void *philo_routine(void* args)
 			if (cmp_time - philo_stat->last_time_to_sleep >= philo_stat->philo_ref->time_to_sleep)
 			{
 				philo_stat->cur_state = THINK;
-				printf("philosopher %d Thinking...\n", philo_stat->philo_num);
+				// printf("philosopher %d Thinking...\n", philo_stat->philo_num);
+				print_philo(philo_stat, my_gettimeofday(), "is thinking");
 			}
 		}
 
 		pthread_mutex_unlock(&philo_stat->philo_ref->check);
 
-		usleep(200);
+		usleep(100);
 	}
 }
 
 int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 {
 	int cnt;
-
+	
+	philo_ref->start_time = my_gettimeofday();
 	pthread_mutex_init(&philo_ref->check, NULL);
 	
 	*philo_arr = (t_philo_stat *)malloc(sizeof(t_philo_stat) * philo_ref->number_of_philosophers);
 	if (*philo_arr == NULL)
 		return (0);
 	memset(*philo_arr, 0, sizeof(t_philo_stat) * philo_ref->number_of_philosophers);
+
+	philo_ref->fork_arr = malloc(sizeof(int) * philo_ref->number_of_philosophers);
+	if (philo_ref->fork_arr == NULL)
+		return (0);
+	memset(philo_ref->fork_arr, 0, sizeof(int) * philo_ref->number_of_philosophers);
 	
 	cnt = 0;
 	while (cnt < philo_ref->number_of_philosophers)
 	{
 		(*philo_arr)[cnt].philo_num = cnt;
-		// (*philo_arr)[cnt].last_time_to_eat = my_gettimeofday();
+		(*philo_arr)[cnt].last_time_to_eat = philo_ref->start_time;
 		(*philo_arr)[cnt].philo_ref = philo_ref;
 		pthread_create(&(*philo_arr)[cnt].philo_thread, NULL, philo_routine, (void *)&(*philo_arr)[cnt]);
 		cnt++;
@@ -209,6 +220,6 @@ int main(int argc, char **argv)
 		pthread_join(philo_arr[cnt].philo_thread, NULL);
 		cnt++;
 	}
-	
+
 	return (0);
 }

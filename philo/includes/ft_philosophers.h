@@ -31,6 +31,7 @@ typedef struct s_philo_ref
 	int is_anyone_die;
 	pthread_mutex_t check;
 	int *fork_arr;
+	long start_time;
 }	t_philo_ref;
 
 typedef struct s_philo_stat
@@ -55,6 +56,7 @@ int	ft_strisnum(char *str);
 int	ft_atoi(const char *str);
 void	ft_putnbr_fd(int n, int fd);
 void	ft_putchar_fd(char c, int fd);
+long my_gettimeofday(void);
 
 /*
 
