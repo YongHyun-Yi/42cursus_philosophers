@@ -40,6 +40,8 @@ typedef struct s_philo_stat
 	t_philo_ref *philo_ref;
 	pthread_t philo_thread;
 	int philo_num;
+	int *fork[2];
+	pthread_mutex_t *m_fork[2];
 	int cur_state;
 	int how_much_eat;
 	long last_time_to_eat;
