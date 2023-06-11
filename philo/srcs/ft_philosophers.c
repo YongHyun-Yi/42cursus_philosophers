@@ -39,16 +39,19 @@ void *philo_routine(void* args)
 
 	if (philo_stat->philo_num % 2)
 		usleep(100);
-
+	// pthread_mutex_lock(&philo_stat->philo_ref->m_fork[philo_stat->philo_num]);
+	// pthread_mutex_unlock(&philo_stat->philo_ref->m_fork[philo_stat->philo_num]);
 	while (1)
 	{
-		pthread_mutex_lock(&philo_stat->philo_ref->check);
+		
 
 		if (philo_stat->philo_ref->number_of_times_must_eat == philo_stat->how_much_eat)
 		{
-			pthread_mutex_unlock(&philo_stat->philo_ref->check);
+			// pthread_mutex_unlock(&philo_stat->philo_ref->check);
 			return (NULL);
 		}
+
+		pthread_mutex_lock(&philo_stat->philo_ref->check);
 
 		if (philo_stat->philo_ref->is_anyone_die)
 		{
@@ -67,12 +70,20 @@ void *philo_routine(void* args)
 			return (NULL);
 		}
 
+		pthread_mutex_unlock(&philo_stat->philo_ref->check);
+
 		if (philo_stat->cur_state == THINK)
 		{
+			pthread_mutex_lock(&philo_stat->philo_ref->m_fork[philo_stat->philo_num]);
+
 			if (philo_stat->philo_ref->fork_arr[philo_stat->philo_num] == 0)
 			{
+				print_philo(philo_stat, my_gettimeofday(), "taking fork1");
+
 				if (philo_stat->philo_num == philo_stat->philo_ref->number_of_philosophers - 1)
 				{
+					pthread_mutex_lock(&philo_stat->philo_ref->m_fork[0]);
+
 					if (philo_stat->philo_ref->fork_arr[0] == 0)
 					{
 						philo_stat->philo_ref->fork_arr[philo_stat->philo_num] = 1;
@@ -80,19 +91,32 @@ void *philo_routine(void* args)
 						philo_stat->cur_state = EAT;
 						philo_stat->last_time_to_eat = my_gettimeofday();
 						// printf("philosopher %d Eating...\n", philo_stat->philo_num);
+						print_philo(philo_stat, my_gettimeofday(), "taking fork2");
 						print_philo(philo_stat, philo_stat->last_time_to_eat, "is eating");
 					}
+
+					pthread_mutex_unlock(&philo_stat->philo_ref->m_fork[0]);
 				}
-				else if (philo_stat->philo_ref->fork_arr[philo_stat->philo_num + 1] == 0)
+				else
 				{
-					philo_stat->philo_ref->fork_arr[philo_stat->philo_num] = 1;
-					philo_stat->philo_ref->fork_arr[philo_stat->philo_num + 1] = 1;
-					philo_stat->cur_state = EAT;
-					philo_stat->last_time_to_eat = my_gettimeofday();
-					// printf("philosopher %d Eating...\n", philo_stat->philo_num);
-					print_philo(philo_stat, philo_stat->last_time_to_eat, "is eating");
+					pthread_mutex_lock(&philo_stat->philo_ref->m_fork[philo_stat->philo_num + 1]);
+
+					if (philo_stat->philo_ref->fork_arr[philo_stat->philo_num + 1] == 0)
+					{
+						philo_stat->philo_ref->fork_arr[philo_stat->philo_num] = 1;
+						philo_stat->philo_ref->fork_arr[philo_stat->philo_num + 1] = 1;
+						philo_stat->cur_state = EAT;
+						philo_stat->last_time_to_eat = my_gettimeofday();
+						// printf("philosopher %d Eating...\n", philo_stat->philo_num);
+						print_philo(philo_stat, my_gettimeofday(), "taking fork2");
+						print_philo(philo_stat, philo_stat->last_time_to_eat, "is eating");
+					}
+
+					pthread_mutex_unlock(&philo_stat->philo_ref->m_fork[philo_stat->philo_num + 1]);
 				}
 			}
+
+			pthread_mutex_unlock(&philo_stat->philo_ref->m_fork[philo_stat->philo_num]);
 		}
 
 		else if (philo_stat->cur_state == EAT)
@@ -112,7 +136,7 @@ void *philo_routine(void* args)
 					philo_stat->how_much_eat += 1;
 					if (philo_stat->philo_ref->number_of_times_must_eat == philo_stat->how_much_eat)
 					{
-						pthread_mutex_unlock(&philo_stat->philo_ref->check);
+						// pthread_mutex_unlock(&philo_stat->philo_ref->check);
 						return (NULL);
 					}
 				}
@@ -136,7 +160,7 @@ void *philo_routine(void* args)
 			}
 		}
 
-		pthread_mutex_unlock(&philo_stat->philo_ref->check);
+		// pthread_mutex_unlock(&philo_stat->philo_ref->check);
 
 		usleep(100);
 	}
@@ -147,7 +171,14 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 	int cnt;
 	
 	philo_ref->start_time = my_gettimeofday();
-	pthread_mutex_init(&philo_ref->check, NULL);
+	// pthread_mutex_init(&philo_ref->check, NULL);
+
+	philo_ref->m_fork = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * philo_ref->number_of_philosophers);
+	if (philo_ref->m_fork == NULL)
+		return (0);
+	
+	for (int i = 0; i < philo_ref->number_of_philosophers; i++)
+		pthread_mutex_init(&philo_ref->m_fork[i], NULL);
 	
 	*philo_arr = (t_philo_stat *)malloc(sizeof(t_philo_stat) * philo_ref->number_of_philosophers);
 	if (*philo_arr == NULL)

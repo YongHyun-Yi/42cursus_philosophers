@@ -30,6 +30,7 @@ typedef struct s_philo_ref
 	int number_of_times_must_eat;
 	int is_anyone_die;
 	pthread_mutex_t check;
+	pthread_mutex_t *m_fork;
 	int *fork_arr;
 	long start_time;
 }	t_philo_ref;
