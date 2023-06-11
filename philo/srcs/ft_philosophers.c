@@ -117,9 +117,8 @@ void *philo_routine(void* args)
 				}
 				else
 				{
-					printf("here?\n");
 					pthread_mutex_lock(philo_stat->m_fork[0]);
-					philo_stat->fork[0] = 0;
+					*philo_stat->fork[0] = 0;
 					pthread_mutex_unlock(philo_stat->m_fork[0]);
 				}
 			}
