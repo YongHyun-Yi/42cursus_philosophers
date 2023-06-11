@@ -191,23 +191,29 @@ void *philo_routine(void* args)
 			if (cmp_time - philo_stat->last_time_to_eat >= philo_stat->philo_ref->time_to_eat)
 			{
 				// 첫번째 포크의 상태를 변경
-				pthread_mutex_lock(&philo_stat->philo_ref->m_fork[0]);
-				philo_stat->philo_ref->fork_arr[philo_stat->philo_num] = 0;
-				pthread_mutex_unlock(&philo_stat->philo_ref->m_fork[0]);
+				// pthread_mutex_lock(&philo_stat->philo_ref->m_fork[0]);
+				// philo_stat->philo_ref->fork_arr[philo_stat->philo_num] = 0;
+				// pthread_mutex_unlock(&philo_stat->philo_ref->m_fork[0]);
+				pthread_mutex_lock(philo_stat->m_fork[0]);
+				*philo_stat->fork[0] = 0;
+				pthread_mutex_unlock(philo_stat->m_fork[0]);
 
 				// 두번째 포크의 상태를 변경
-				if (philo_stat->philo_num == philo_stat->philo_ref->number_of_philosophers - 1)
-				{
-					pthread_mutex_lock(&philo_stat->philo_ref->m_fork[0]);
-					philo_stat->philo_ref->fork_arr[0] = 0;
-					pthread_mutex_unlock(&philo_stat->philo_ref->m_fork[0]);
-				}
-				else
-				{
-					pthread_mutex_lock(&philo_stat->philo_ref->m_fork[philo_stat->philo_num + 1]);
-					philo_stat->philo_ref->fork_arr[philo_stat->philo_num + 1] = 0;
-					pthread_mutex_unlock(&philo_stat->philo_ref->m_fork[philo_stat->philo_num + 1]);
-				}
+				// if (philo_stat->philo_num == philo_stat->philo_ref->number_of_philosophers - 1)
+				// {
+				// 	pthread_mutex_lock(&philo_stat->philo_ref->m_fork[0]);
+				// 	philo_stat->philo_ref->fork_arr[0] = 0;
+				// 	pthread_mutex_unlock(&philo_stat->philo_ref->m_fork[0]);
+				// }
+				// else
+				// {
+				// 	pthread_mutex_lock(&philo_stat->philo_ref->m_fork[philo_stat->philo_num + 1]);
+				// 	philo_stat->philo_ref->fork_arr[philo_stat->philo_num + 1] = 0;
+				// 	pthread_mutex_unlock(&philo_stat->philo_ref->m_fork[philo_stat->philo_num + 1]);
+				// }
+				pthread_mutex_lock(philo_stat->m_fork[1]);
+				*philo_stat->fork[1] = 0;
+				pthread_mutex_unlock(philo_stat->m_fork[1]);
 
 				// 먹어야 하는 횟수가 정해져있는 경우 +1 계산
 				// 모두 채웠으면 종료
@@ -243,7 +249,7 @@ void *philo_routine(void* args)
 			}
 		}
 
-		usleep(100);
+		usleep(20);
 	}
 }
 
