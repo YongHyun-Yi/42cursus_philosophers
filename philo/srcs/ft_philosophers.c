@@ -69,6 +69,10 @@ void *philo_routine(void* args)
 		if (philo_stat->philo_ref->number_of_times_must_eat == philo_stat->how_much_eat)
 			return (NULL);
 
+		// 아래의 두 케이스에서 죽은 철학자가 포크를 쥐고있었다면 포크를 놔준다?
+		// 그래도 시뮬레이션은 계속되어야 한다면 (출력은 없이)
+		// 일괄적으로 끝낼수 있는 방법은...?
+
 		// 하나라도 종료된 스레드가 있는지 확인
 		pthread_mutex_lock(&philo_stat->philo_ref->m_die);
 		if (philo_stat->philo_ref->is_anyone_die)
@@ -107,20 +111,30 @@ void *philo_routine(void* args)
 				else
 					idx = philo_stat->philo_ref->number_of_philosophers + 1;
 				
-				if (take_fork(philo_stat, 1))// 1 0
+				while (1)
 				{
-					print_philo(philo_stat, my_gettimeofday(), "has taken a fork");//2
+					if (take_fork(philo_stat, 1))// 1 0
+					{
+						print_philo(philo_stat, my_gettimeofday(), "has taken a fork");//2
 
-					philo_stat->cur_state = EAT;
-					philo_stat->last_time_to_eat = my_gettimeofday();
-					print_philo(philo_stat, philo_stat->last_time_to_eat, "is eating");
+						philo_stat->cur_state = EAT;
+						philo_stat->last_time_to_eat = my_gettimeofday();
+						print_philo(philo_stat, philo_stat->last_time_to_eat, "is eating");
+						break;
+					}
+					else
+					{
+						pthread_mutex_lock(&philo_stat->philo_ref->m_die);
+						if (philo_stat->philo_ref->is_anyone_die)
+						{
+							pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
+							break;
+						}
+						pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
+						usleep(100);
+					}
 				}
-				// else
-				// {
-				// 	pthread_mutex_lock(philo_stat->m_fork[0]);
-				// 	*philo_stat->fork[0] = 0;
-				// 	pthread_mutex_unlock(philo_stat->m_fork[0]);
-				// }
+
 			}
 		}
 
