@@ -61,7 +61,7 @@ void *philo_routine(void* args)
 	philo_stat = (t_philo_stat *)args;
 
 	if (philo_stat->philo_num % 2)
-		usleep(100);
+		usleep(50);
 	
 	while (1)
 	{
@@ -99,7 +99,7 @@ void *philo_routine(void* args)
 			// 함수화 버전
 			if (take_fork(philo_stat, 0))
 			{
-				print_philo(philo_stat, my_gettimeofday(), "taking fork1");
+				print_philo(philo_stat, my_gettimeofday(), "has taken a fork");//1
 
 				int idx;
 				if (philo_stat->philo_num == philo_stat->philo_ref->number_of_philosophers - 1)
@@ -107,9 +107,9 @@ void *philo_routine(void* args)
 				else
 					idx = philo_stat->philo_ref->number_of_philosophers + 1;
 				
-				if (take_fork(philo_stat, 1))
+				if (take_fork(philo_stat, 1))// 1 0
 				{
-					print_philo(philo_stat, my_gettimeofday(), "taking fork2");
+					print_philo(philo_stat, my_gettimeofday(), "has taken a fork");//2
 
 					philo_stat->cur_state = EAT;
 					philo_stat->last_time_to_eat = my_gettimeofday();
@@ -188,7 +188,7 @@ void *philo_routine(void* args)
 			cmp_time = my_gettimeofday();
 
 			// 식사 시작으로부터 time_to_eat 만큼의 시간이 경과했을때
-			if (cmp_time - philo_stat->last_time_to_eat >= philo_stat->philo_ref->time_to_eat)
+			if (cmp_time - philo_stat->last_time_to_eat >= philo_stat->philo_ref->time_to_eat + 10)
 			{
 				// 첫번째 포크의 상태를 변경
 				// pthread_mutex_lock(&philo_stat->philo_ref->m_fork[0]);
