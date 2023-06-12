@@ -136,7 +136,7 @@ void *philo_routine(void* args)
 							break;
 						}
 						pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
-						usleep(100);
+						usleep(20);
 					}
 				}
 
@@ -199,8 +199,6 @@ void *philo_routine(void* args)
 			}
 		}
 
-		// usleep(20);
-
 		long sleep_time = 0;
 		if (philo_stat->cur_state == EAT)
 			sleep_time = philo_stat->philo_ref->time_to_eat - (my_gettimeofday() - philo_stat->last_time_to_eat);
@@ -208,11 +206,14 @@ void *philo_routine(void* args)
 			sleep_time = philo_stat->philo_ref->time_to_sleep - (my_gettimeofday() - philo_stat->last_time_to_sleep);
 		else if (philo_stat->cur_state == THINK)
 			sleep_time = 20;
-			// usleep(20);
-		if (sleep_time / 2 > 20)
-			usleep (sleep_time / 2 * 1000);
+
+		if (sleep_time > philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat))
+			sleep_time = philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat);
+		
+		if (sleep_time / 2 > 20 * 1000)
+			usleep (sleep_time / 2);
 		else
-			usleep (sleep_time);
+			usleep (20);
 
 		// long sleep_time = 0;
 		// if (philo_stat->cur_state == EAT)
