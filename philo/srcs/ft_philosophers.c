@@ -16,8 +16,13 @@ void print_philo(t_philo_stat *philo_stat, long time, char *state)
 {
 	long print_time;
 
-	print_time = time - philo_stat->philo_ref->start_time;
-	printf("%ld %d %s\n", print_time, philo_stat->philo_num, state);
+	pthread_mutex_lock(&philo_stat->philo_ref->m_die);
+	if (!philo_stat->philo_ref->is_anyone_die)
+	{
+		print_time = time - philo_stat->philo_ref->start_time;
+		printf("%ld %d %s\n", print_time, philo_stat->philo_num, state);
+	}
+	pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
 }
 
 void print_err_msg(void)
@@ -87,10 +92,10 @@ void *philo_routine(void* args)
 		// 마지막으로 식사한 시간으로부터 생존가능한 시간이 지났는지 확인
 		if (cmp_time - philo_stat->last_time_to_eat > philo_stat->philo_ref->time_to_die)
 		{
+			print_philo(philo_stat, my_gettimeofday(), "died");
 			pthread_mutex_lock(&philo_stat->philo_ref->m_die);
 			philo_stat->philo_ref->is_anyone_die = 1;
 			pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
-			print_philo(philo_stat, my_gettimeofday(), "died");
 			return (NULL);
 		}
 
