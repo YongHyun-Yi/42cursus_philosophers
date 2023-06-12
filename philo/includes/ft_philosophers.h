@@ -28,9 +28,11 @@ typedef struct s_philo_ref
 	int time_to_eat;
 	int time_to_sleep;
 	int number_of_times_must_eat;
+	int number_of_full_philosophers;
 	int is_anyone_die;
-	pthread_mutex_t check;
-	pthread_mutex_t *m_fork;
+	pthread_mutex_t m_die;
+	pthread_mutex_t m_full_eat;
+	pthread_mutex_t *m_fork_arr;
 	int *fork_arr;
 	long start_time;
 }	t_philo_ref;

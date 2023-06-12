@@ -70,22 +70,22 @@ void *philo_routine(void* args)
 			return (NULL);
 
 		// 하나라도 종료된 스레드가 있는지 확인
-		pthread_mutex_lock(&philo_stat->philo_ref->check);
+		pthread_mutex_lock(&philo_stat->philo_ref->m_die);
 		if (philo_stat->philo_ref->is_anyone_die)
 		{
-			pthread_mutex_unlock(&philo_stat->philo_ref->check);
+			pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
 			return (NULL);
 		}
-		pthread_mutex_unlock(&philo_stat->philo_ref->check);
+		pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
 		
 		long cmp_time = my_gettimeofday();
 
 		// 마지막으로 식사한 시간으로부터 생존가능한 시간이 지났는지 확인
 		if (cmp_time - philo_stat->last_time_to_eat > philo_stat->philo_ref->time_to_die)
 		{
-			pthread_mutex_lock(&philo_stat->philo_ref->check);
+			pthread_mutex_lock(&philo_stat->philo_ref->m_die);
 			philo_stat->philo_ref->is_anyone_die = 1;
-			pthread_mutex_unlock(&philo_stat->philo_ref->check);
+			pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
 			print_philo(philo_stat, my_gettimeofday(), "died");
 			return (NULL);
 		}
@@ -99,7 +99,7 @@ void *philo_routine(void* args)
 			// 함수화 버전
 			if (take_fork(philo_stat, 0))
 			{
-				print_philo(philo_stat, my_gettimeofday(), "has taken a fork");//1
+				print_philo(philo_stat, my_gettimeofday(), "has taken a fork1");//1
 
 				int idx;
 				if (philo_stat->philo_num == philo_stat->philo_ref->number_of_philosophers - 1)
@@ -109,7 +109,7 @@ void *philo_routine(void* args)
 				
 				if (take_fork(philo_stat, 1))// 1 0
 				{
-					print_philo(philo_stat, my_gettimeofday(), "has taken a fork");//2
+					print_philo(philo_stat, my_gettimeofday(), "has taken a fork2");//2
 
 					philo_stat->cur_state = EAT;
 					philo_stat->last_time_to_eat = my_gettimeofday();
@@ -249,7 +249,7 @@ void *philo_routine(void* args)
 			}
 		}
 
-		usleep(20);
+		usleep(100);
 	}
 }
 
@@ -258,14 +258,15 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 	int cnt;
 	
 	philo_ref->start_time = my_gettimeofday();
-	pthread_mutex_init(&philo_ref->check, NULL);
+	pthread_mutex_init(&philo_ref->m_die, NULL);
+	pthread_mutex_init(&philo_ref->m_full_eat, NULL);
 
-	philo_ref->m_fork = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * philo_ref->number_of_philosophers);
-	if (philo_ref->m_fork == NULL)
+	philo_ref->m_fork_arr = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * philo_ref->number_of_philosophers);
+	if (philo_ref->m_fork_arr == NULL)
 		return (0);
 	
 	for (int i = 0; i < philo_ref->number_of_philosophers; i++)
-		pthread_mutex_init(&philo_ref->m_fork[i], NULL);
+		pthread_mutex_init(&philo_ref->m_fork_arr[i], NULL);
 	
 	*philo_arr = (t_philo_stat *)malloc(sizeof(t_philo_stat) * philo_ref->number_of_philosophers);
 	if (*philo_arr == NULL)
@@ -282,16 +283,16 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 	{
 		(*philo_arr)[cnt].philo_num = cnt;
 		(*philo_arr)[cnt].fork[0] = &philo_ref->fork_arr[cnt];
-		(*philo_arr)[cnt].m_fork[0] = &philo_ref->m_fork[cnt];
+		(*philo_arr)[cnt].m_fork[0] = &philo_ref->m_fork_arr[cnt];
 		if (cnt - 1 == philo_ref->number_of_philosophers)
 		{
 			(*philo_arr)[cnt].fork[1] = &philo_ref->fork_arr[0];
-			(*philo_arr)[cnt].m_fork[1] = &philo_ref->m_fork[0];
+			(*philo_arr)[cnt].m_fork[1] = &philo_ref->m_fork_arr[0];
 		}
 		else
 		{
 			(*philo_arr)[cnt].fork[1] = &philo_ref->fork_arr[cnt + 1];
-			(*philo_arr)[cnt].m_fork[1] = &philo_ref->m_fork[cnt + 1];
+			(*philo_arr)[cnt].m_fork[1] = &philo_ref->m_fork_arr[cnt + 1];
 		}
 		(*philo_arr)[cnt].last_time_to_eat = philo_ref->start_time;
 		(*philo_arr)[cnt].philo_ref = philo_ref;
