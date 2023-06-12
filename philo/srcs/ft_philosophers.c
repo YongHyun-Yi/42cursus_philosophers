@@ -61,7 +61,7 @@ void *philo_routine(void* args)
 	philo_stat = (t_philo_stat *)args;
 
 	if (philo_stat->philo_num % 2)
-		usleep(50);
+		usleep(200);
 	
 	while (1)
 	{
@@ -99,7 +99,7 @@ void *philo_routine(void* args)
 			// 함수화 버전
 			if (take_fork(philo_stat, 0))
 			{
-				print_philo(philo_stat, my_gettimeofday(), "has taken a fork1");//1
+				print_philo(philo_stat, my_gettimeofday(), "has taken a fork");//1
 
 				int idx;
 				if (philo_stat->philo_num == philo_stat->philo_ref->number_of_philosophers - 1)
@@ -109,77 +109,19 @@ void *philo_routine(void* args)
 				
 				if (take_fork(philo_stat, 1))// 1 0
 				{
-					print_philo(philo_stat, my_gettimeofday(), "has taken a fork2");//2
+					print_philo(philo_stat, my_gettimeofday(), "has taken a fork");//2
 
 					philo_stat->cur_state = EAT;
 					philo_stat->last_time_to_eat = my_gettimeofday();
 					print_philo(philo_stat, philo_stat->last_time_to_eat, "is eating");
 				}
-				else
-				{
-					pthread_mutex_lock(philo_stat->m_fork[0]);
-					*philo_stat->fork[0] = 0;
-					pthread_mutex_unlock(philo_stat->m_fork[0]);
-				}
+				// else
+				// {
+				// 	pthread_mutex_lock(philo_stat->m_fork[0]);
+				// 	*philo_stat->fork[0] = 0;
+				// 	pthread_mutex_unlock(philo_stat->m_fork[0]);
+				// }
 			}
-			
-			// // 첫번째 포크가 사용중인지 확인
-			// pthread_mutex_lock(&philo_stat->philo_ref->m_fork[philo_stat->philo_num]);
-
-			// if (philo_stat->philo_ref->fork_arr[philo_stat->philo_num] == 0)
-			// {
-			// 	// 첫번째 포크의 상태를 변경
-			// 	philo_stat->philo_ref->fork_arr[philo_stat->philo_num] = 1;
-			// 	print_philo(philo_stat, my_gettimeofday(), "taking fork1");
-
-			// 	// 두번째 포크가 사용중인지 확인
-			// 	// 맨 마지막 철학자인경우 인덱스 때문에 따로 처리한다
-			// 	if (philo_stat->philo_num == philo_stat->philo_ref->number_of_philosophers - 1)
-			// 	{
-			// 		pthread_mutex_lock(&philo_stat->philo_ref->m_fork[0]);
-
-			// 		if (philo_stat->philo_ref->fork_arr[0] == 0)
-			// 		{
-			// 			// 두번째 포크의 상태를 변경
-			// 			philo_stat->philo_ref->fork_arr[0] = 1;
-
-			// 			// 철학자의 상태를 변경
-			// 			philo_stat->cur_state = EAT;
-
-			// 			// 마지막으로 식사한 시간을 갱신
-			// 			philo_stat->last_time_to_eat = my_gettimeofday();
-
-			// 			print_philo(philo_stat, my_gettimeofday(), "taking fork2");
-			// 			print_philo(philo_stat, philo_stat->last_time_to_eat, "is eating");
-			// 		}
-
-			// 		pthread_mutex_unlock(&philo_stat->philo_ref->m_fork[0]);
-			// 	}
-			// 	// 그 외 철학자들의 두번째 포크가 사용중인지 확인
-			// 	else
-			// 	{
-			// 		pthread_mutex_lock(&philo_stat->philo_ref->m_fork[philo_stat->philo_num + 1]);
-
-			// 		if (philo_stat->philo_ref->fork_arr[philo_stat->philo_num + 1] == 0)
-			// 		{
-			// 			// 두번째 포크의 상태를 변경
-			// 			philo_stat->philo_ref->fork_arr[philo_stat->philo_num + 1] = 1;
-
-			// 			// 철학자의 상태를 변경
-			// 			philo_stat->cur_state = EAT;
-
-			// 			// 마지막으로 식사한 시간을 갱신
-			// 			philo_stat->last_time_to_eat = my_gettimeofday();
-
-			// 			print_philo(philo_stat, my_gettimeofday(), "taking fork2");
-			// 			print_philo(philo_stat, philo_stat->last_time_to_eat, "is eating");
-			// 		}
-
-			// 		pthread_mutex_unlock(&philo_stat->philo_ref->m_fork[philo_stat->philo_num + 1]);
-			// 	}
-			// }
-
-			// pthread_mutex_unlock(&philo_stat->philo_ref->m_fork[philo_stat->philo_num]);
 		}
 
 		// 식사중인 경우 -> 식사 시간초과 확인
@@ -188,29 +130,14 @@ void *philo_routine(void* args)
 			cmp_time = my_gettimeofday();
 
 			// 식사 시작으로부터 time_to_eat 만큼의 시간이 경과했을때
-			if (cmp_time - philo_stat->last_time_to_eat >= philo_stat->philo_ref->time_to_eat + 10)
+			if (cmp_time - philo_stat->last_time_to_eat >= philo_stat->philo_ref->time_to_eat)
 			{
 				// 첫번째 포크의 상태를 변경
-				// pthread_mutex_lock(&philo_stat->philo_ref->m_fork[0]);
-				// philo_stat->philo_ref->fork_arr[philo_stat->philo_num] = 0;
-				// pthread_mutex_unlock(&philo_stat->philo_ref->m_fork[0]);
 				pthread_mutex_lock(philo_stat->m_fork[0]);
 				*philo_stat->fork[0] = 0;
 				pthread_mutex_unlock(philo_stat->m_fork[0]);
 
 				// 두번째 포크의 상태를 변경
-				// if (philo_stat->philo_num == philo_stat->philo_ref->number_of_philosophers - 1)
-				// {
-				// 	pthread_mutex_lock(&philo_stat->philo_ref->m_fork[0]);
-				// 	philo_stat->philo_ref->fork_arr[0] = 0;
-				// 	pthread_mutex_unlock(&philo_stat->philo_ref->m_fork[0]);
-				// }
-				// else
-				// {
-				// 	pthread_mutex_lock(&philo_stat->philo_ref->m_fork[philo_stat->philo_num + 1]);
-				// 	philo_stat->philo_ref->fork_arr[philo_stat->philo_num + 1] = 0;
-				// 	pthread_mutex_unlock(&philo_stat->philo_ref->m_fork[philo_stat->philo_num + 1]);
-				// }
 				pthread_mutex_lock(philo_stat->m_fork[1]);
 				*philo_stat->fork[1] = 0;
 				pthread_mutex_unlock(philo_stat->m_fork[1]);
@@ -221,7 +148,11 @@ void *philo_routine(void* args)
 				{
 					philo_stat->how_much_eat += 1;
 					if (philo_stat->philo_ref->number_of_times_must_eat == philo_stat->how_much_eat)
-						return (NULL);
+					{
+						pthread_mutex_lock(&philo_stat->philo_ref->m_full_eat);
+						philo_stat->philo_ref->number_of_full_philosophers++;
+						pthread_mutex_unlock(&philo_stat->philo_ref->m_full_eat);
+					}
 				}
 				
 				// 철학자의 상태를 변경
@@ -249,7 +180,7 @@ void *philo_routine(void* args)
 			}
 		}
 
-		usleep(100);
+		usleep(20);
 	}
 }
 
