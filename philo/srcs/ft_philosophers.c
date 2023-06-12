@@ -60,8 +60,8 @@ void *philo_routine(void* args)
 
 	philo_stat = (t_philo_stat *)args;
 
-	if (philo_stat->philo_num % 2)
-		usleep(200);
+	// if (philo_stat->philo_num % 2)
+	// 	usleep(200);
 	
 	while (1)
 	{
@@ -194,7 +194,28 @@ void *philo_routine(void* args)
 			}
 		}
 
-		usleep(20);
+		// usleep(20);
+
+		long sleep_time = 0;
+		if (philo_stat->cur_state == EAT)
+			sleep_time = philo_stat->philo_ref->time_to_eat - (my_gettimeofday() - philo_stat->last_time_to_eat);
+		else if (philo_stat->cur_state == SLEEP)
+			sleep_time = philo_stat->philo_ref->time_to_sleep - (my_gettimeofday() - philo_stat->last_time_to_sleep);
+		else if (philo_stat->cur_state == THINK)
+			sleep_time = 20;
+			// usleep(20);
+		if (sleep_time / 2 > 20)
+			usleep (sleep_time / 2 * 1000);
+		else
+			usleep (sleep_time);
+
+		// long sleep_time = 0;
+		// if (philo_stat->cur_state == EAT)
+		// 	sleep_time = (my_gettimeofday() - philo_stat->last_time_to_eat);
+		// else if (philo_stat->cur_state == SLEEP)
+		// 	sleep_time = (my_gettimeofday() - philo_stat->last_time_to_sleep);
+		// if (sleep_time > 200)
+		// usleep (sleep_time / 2 * 1000);
 	}
 }
 
@@ -224,9 +245,52 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 	memset(philo_ref->fork_arr, 0, sizeof(int) * philo_ref->number_of_philosophers);
 	
 	cnt = 0;
-	while (cnt < philo_ref->number_of_philosophers)
+	// while (cnt < philo_ref->number_of_philosophers)
+	// {
+	// 	(*philo_arr)[cnt].philo_num = cnt;
+	// 	(*philo_arr)[cnt].fork[0] = &philo_ref->fork_arr[cnt];
+	// 	(*philo_arr)[cnt].m_fork[0] = &philo_ref->m_fork_arr[cnt];
+	// 	if (cnt - 1 == philo_ref->number_of_philosophers)
+	// 	{
+	// 		(*philo_arr)[cnt].fork[1] = &philo_ref->fork_arr[0];
+	// 		(*philo_arr)[cnt].m_fork[1] = &philo_ref->m_fork_arr[0];
+	// 	}
+	// 	else
+	// 	{
+	// 		(*philo_arr)[cnt].fork[1] = &philo_ref->fork_arr[cnt + 1];
+	// 		(*philo_arr)[cnt].m_fork[1] = &philo_ref->m_fork_arr[cnt + 1];
+	// 	}
+	// 	(*philo_arr)[cnt].last_time_to_eat = philo_ref->start_time;
+	// 	(*philo_arr)[cnt].philo_ref = philo_ref;
+	// 	pthread_create(&(*philo_arr)[cnt].philo_thread, NULL, philo_routine, (void *)&(*philo_arr)[cnt]);
+	// 	cnt++;
+	// }
+
+	// 짝수 철학자부터 일괄 생성
+	while (cnt < philo_ref->number_of_philosophers / 2)
 	{
-		(*philo_arr)[cnt].philo_num = cnt;
+		(*philo_arr)[cnt].philo_num = cnt * 2;
+		(*philo_arr)[cnt].fork[0] = &philo_ref->fork_arr[cnt];
+		(*philo_arr)[cnt].m_fork[0] = &philo_ref->m_fork_arr[cnt];
+		if (cnt - 1 == philo_ref->number_of_philosophers)
+		{
+			(*philo_arr)[cnt].fork[1] = &philo_ref->fork_arr[0];
+			(*philo_arr)[cnt].m_fork[1] = &philo_ref->m_fork_arr[0];
+		}
+		else
+		{
+			(*philo_arr)[cnt].fork[1] = &philo_ref->fork_arr[cnt + 1];
+			(*philo_arr)[cnt].m_fork[1] = &philo_ref->m_fork_arr[cnt + 1];
+		}
+		(*philo_arr)[cnt].last_time_to_eat = philo_ref->start_time;
+		(*philo_arr)[cnt].philo_ref = philo_ref;
+		pthread_create(&(*philo_arr)[cnt].philo_thread, NULL, philo_routine, (void *)&(*philo_arr)[cnt]);
+		cnt++;
+	}
+	// 홀수 철학자 일괄 생성
+	while (cnt < philo_ref->number_of_philosophers / 2 + philo_ref->number_of_philosophers % 2)
+	{
+		(*philo_arr)[cnt].philo_num = cnt / 2 + 1;
 		(*philo_arr)[cnt].fork[0] = &philo_ref->fork_arr[cnt];
 		(*philo_arr)[cnt].m_fork[0] = &philo_ref->m_fork_arr[cnt];
 		if (cnt - 1 == philo_ref->number_of_philosophers)
