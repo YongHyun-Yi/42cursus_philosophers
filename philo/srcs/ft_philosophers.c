@@ -212,8 +212,8 @@ void *philo_routine(void* args)
 		else if (philo_stat->cur_state == THINK)
 		{
 			// printf("THINK wait\n");
-			// sleep_time = 20;
-			sleep_time = philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat);
+			sleep_time = 20;
+			// sleep_time = philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat);
 		}
 
 		if (sleep_time > philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat))
@@ -289,7 +289,7 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 	{
 		idx = cnt * 2;
 		(*philo_arr)[idx].philo_num = idx;
-		printf("philo num: %d\n", idx);
+		// printf("philo num: %d\n", idx);
 		(*philo_arr)[idx].fork[0] = &philo_ref->fork_arr[idx];
 		(*philo_arr)[idx].m_fork[0] = &philo_ref->m_fork_arr[idx];
 		if (idx == philo_ref->number_of_philosophers - 1)
@@ -314,7 +314,7 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 	{
 		idx = cnt * 2 + 1;
 		(*philo_arr)[idx].philo_num = idx;
-		printf("philo num: %d\n", idx);
+		// printf("philo num: %d\n", idx);
 		(*philo_arr)[idx].fork[0] = &philo_ref->fork_arr[idx];
 		(*philo_arr)[idx].m_fork[0] = &philo_ref->m_fork_arr[idx];
 		if (idx == philo_ref->number_of_philosophers - 1)
