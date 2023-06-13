@@ -139,8 +139,12 @@ void *philo_routine(void* args)
 						usleep(20);
 					}
 				}
-
+				// printf("THINK WHILE BREAK\n");
 			}
+			// else
+			// {
+			// 	print_philo(philo_stat, my_gettimeofday(), "cant take fork");
+			// }
 		}
 
 		// 식사중인 경우 -> 식사 시간초과 확인
@@ -199,18 +203,23 @@ void *philo_routine(void* args)
 			}
 		}
 
+		// usleep(20);
 		long sleep_time = 0;
 		if (philo_stat->cur_state == EAT)
 			sleep_time = philo_stat->philo_ref->time_to_eat - (my_gettimeofday() - philo_stat->last_time_to_eat);
 		else if (philo_stat->cur_state == SLEEP)
 			sleep_time = philo_stat->philo_ref->time_to_sleep - (my_gettimeofday() - philo_stat->last_time_to_sleep);
 		else if (philo_stat->cur_state == THINK)
-			sleep_time = 20;
+		{
+			// printf("THINK wait\n");
+			// sleep_time = 20;
+			sleep_time = philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat);
+		}
 
 		if (sleep_time > philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat))
 			sleep_time = philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat);
 		
-		if (sleep_time / 2 > 20 * 1000)
+		if (sleep_time / 2 > 20)
 			usleep (sleep_time / 2);
 		else
 			usleep (20);
@@ -250,7 +259,7 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 		return (0);
 	memset(philo_ref->fork_arr, 0, sizeof(int) * philo_ref->number_of_philosophers);
 	
-	cnt = 0;
+	// cnt = 0;
 	// while (cnt < philo_ref->number_of_philosophers)
 	// {
 	// 	(*philo_arr)[cnt].philo_num = cnt;
@@ -273,6 +282,7 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 	// }
 
 	// 짝수 철학자부터 일괄 생성
+	cnt = 0;
 	while (cnt < philo_ref->number_of_philosophers / 2)
 	{
 		(*philo_arr)[cnt].philo_num = cnt * 2;
@@ -293,10 +303,12 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 		pthread_create(&(*philo_arr)[cnt].philo_thread, NULL, philo_routine, (void *)&(*philo_arr)[cnt]);
 		cnt++;
 	}
+
 	// 홀수 철학자 일괄 생성
+	cnt = 0;
 	while (cnt < philo_ref->number_of_philosophers / 2 + philo_ref->number_of_philosophers % 2)
 	{
-		(*philo_arr)[cnt].philo_num = cnt / 2 + 1;
+		(*philo_arr)[cnt].philo_num = cnt * 2 + 1;
 		(*philo_arr)[cnt].fork[0] = &philo_ref->fork_arr[cnt];
 		(*philo_arr)[cnt].m_fork[0] = &philo_ref->m_fork_arr[cnt];
 		if (cnt - 1 == philo_ref->number_of_philosophers)
