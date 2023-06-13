@@ -108,7 +108,7 @@ void *philo_routine(void* args)
 			// 함수화 버전
 			if (take_fork(philo_stat, 0))
 			{
-				print_philo(philo_stat, my_gettimeofday(), "has taken a fork");//1
+				print_philo(philo_stat, my_gettimeofday(), "has taken a fork1");//1
 
 				int idx;
 				if (philo_stat->philo_num == philo_stat->philo_ref->number_of_philosophers - 1)
@@ -120,7 +120,7 @@ void *philo_routine(void* args)
 				{
 					if (take_fork(philo_stat, 1))// 1 0
 					{
-						print_philo(philo_stat, my_gettimeofday(), "has taken a fork");//2
+						print_philo(philo_stat, my_gettimeofday(), "has taken a fork2");//2
 
 						philo_stat->cur_state = EAT;
 						philo_stat->last_time_to_eat = my_gettimeofday();
@@ -212,8 +212,8 @@ void *philo_routine(void* args)
 		else if (philo_stat->cur_state == THINK)
 		{
 			// printf("THINK wait\n");
-			sleep_time = 20;
-			// sleep_time = philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat);
+			// sleep_time = 20;
+			sleep_time = philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat);
 		}
 
 		if (sleep_time > philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat))
