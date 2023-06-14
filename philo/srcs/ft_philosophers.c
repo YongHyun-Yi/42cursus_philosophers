@@ -116,37 +116,11 @@ void *philo_routine(void* args)
 		if (philo_stat->cur_state == THINK)
 		{
 			while (!get_dead_thread(philo_stat->philo_ref) && !take_fork(philo_stat, 0))
-			// while (!take_fork(philo_stat, 0))
-			{
-				// cmp_time = my_gettimeofday();
-
-				// // 못잡았으면 대기후 다시 while문 시도
-				usleep (20);
-
-				// long st;
-				// st = philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat);
-				// if (st / 2 > 20)
-				// 	usleep(st / 2);
-				// else
-				// 	usleep(20);
-			}
+				usleep (200);
 			print_philo(philo_stat, my_gettimeofday(), "has taken a fork1");//1
 
 			while (!get_dead_thread(philo_stat->philo_ref) && !take_fork(philo_stat, 1))
-			// while (!take_fork(philo_stat, 1))
-			{
-				// cmp_time = my_gettimeofday();
-				
-				// 못잡았으면 대기후 다시 while문 시도
-				usleep(20);
-
-				// long st;
-				// st = philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat);
-				// if (st / 2 > 20)
-				// 	usleep(st / 2);
-				// else
-				// 	usleep(20);
-			}
+				usleep(200);
 
 			print_philo(philo_stat, my_gettimeofday(), "has taken a fork2");//2
 
@@ -158,7 +132,7 @@ void *philo_routine(void* args)
 		// 식사중인 경우 -> 식사 시간초과 확인
 		else if (philo_stat->cur_state == EAT)
 		{
-			cmp_time = my_gettimeofday();
+			// cmp_time = my_gettimeofday();
 
 			// 식사 시작으로부터 time_to_eat 만큼의 시간이 경과했을때
 			if (cmp_time - philo_stat->last_time_to_eat >= philo_stat->philo_ref->time_to_eat)
@@ -190,16 +164,18 @@ void *philo_routine(void* args)
 				philo_stat->cur_state = SLEEP;
 
 				// 마지막으로 수면한 시간을 갱신
-				philo_stat->last_time_to_sleep = my_gettimeofday();
+				// philo_stat->last_time_to_sleep = my_gettimeofday();
+				philo_stat->last_time_to_sleep = cmp_time;
 
-				print_philo(philo_stat, philo_stat->last_time_to_sleep, "is sleeping");
+				// print_philo(philo_stat, philo_stat->last_time_to_sleep, "is sleeping");
+				print_philo(philo_stat, cmp_time, "is sleeping");
 			}
 		}
 
 		// 수면중인 경우 -> 수면 시간초과 확인
 		else
 		{
-			cmp_time = my_gettimeofday();
+			// cmp_time = my_gettimeofday();
 
 			// 마지막으로 수면한 시간으로부터 time_to_sleep 만큼의 시간이 경과했을때
 			if (cmp_time - philo_stat->last_time_to_sleep >= philo_stat->philo_ref->time_to_sleep)
@@ -207,7 +183,8 @@ void *philo_routine(void* args)
 				// 철학자의 상태를 변경
 				philo_stat->cur_state = THINK;
 
-				print_philo(philo_stat, my_gettimeofday(), "is thinking");
+				// print_philo(philo_stat, my_gettimeofday(), "is thinking");
+				print_philo(philo_stat, cmp_time, "is thinking");
 			}
 		}
 
@@ -216,15 +193,13 @@ void *philo_routine(void* args)
 			sleep_time = philo_stat->philo_ref->time_to_eat - (my_gettimeofday() - philo_stat->last_time_to_eat);
 		else if (philo_stat->cur_state == SLEEP)
 			sleep_time = philo_stat->philo_ref->time_to_sleep - (my_gettimeofday() - philo_stat->last_time_to_sleep);
-		// else if (philo_stat->cur_state == THINK)
-			// sleep_time = philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat);
 
 		long cmp_time2 = philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat);
 		if (sleep_time > cmp_time2)
 			sleep_time = cmp_time2;
 		
 		if (sleep_time / 2 > 20)
-			usleep (sleep_time / 2);
+			usleep (sleep_time / 2 * 1000);
 		else
 			usleep (20);
 	}
