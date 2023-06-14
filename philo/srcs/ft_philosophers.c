@@ -127,6 +127,18 @@ void *philo_routine(void* args)
 			philo_stat->cur_state = EAT;
 			philo_stat->last_time_to_eat = my_gettimeofday();
 			print_philo(philo_stat, philo_stat->last_time_to_eat, "is eating");
+
+			// pthread_mutex_lock(philo_stat->m_fork[0]);
+
+			// print_philo(philo_stat, my_gettimeofday(), "has taken a fork");//1
+
+			// pthread_mutex_lock(philo_stat->m_fork[1]);
+
+			// print_philo(philo_stat, my_gettimeofday(), "has taken a fork");//2
+
+			// philo_stat->cur_state = EAT;
+			// philo_stat->last_time_to_eat = my_gettimeofday();
+			// print_philo(philo_stat, philo_stat->last_time_to_eat, "is eating");
 		}
 
 		// 식사중인 경우 -> 식사 시간초과 확인
