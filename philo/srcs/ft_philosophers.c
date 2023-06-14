@@ -34,6 +34,10 @@ void print_err_msg(void)
 	printf("Time to Sleep, \033[1;30m[ Number of Times Each Philosopher ");
 	printf("Must Eat ]⌟\033[0;0m\n");
 }
+int is_philo_died(t_philo_stat *philo_stat, long time)
+{
+	return (time - philo_stat->last_time_to_eat > philo_stat->philo_ref->time_to_die);
+}
 
 int get_dead_thread(t_philo_ref *philo_ref)
 {
@@ -83,11 +87,13 @@ void *philo_routine(void* args)
 
 	philo_stat = (t_philo_stat *)args;
 
-	// if (philo_stat->philo_num % 2)
-	// 	usleep(200);
+	if (philo_stat->philo_num % 2)
+		usleep(10 * philo_stat->philo_num);
 	
 	while (1)
 	{
+		long cmp_time = my_gettimeofday();
+
 		// 먹어야 하는 횟수 0 일경우 바로 종료하도록 확인
 		if (philo_stat->philo_ref->number_of_times_must_eat == philo_stat->how_much_eat)
 			return (NULL);
@@ -96,16 +102,11 @@ void *philo_routine(void* args)
 		if (get_dead_thread(philo_stat->philo_ref))
 			return (NULL);
 		
-		long cmp_time = my_gettimeofday();
-
 		// 마지막으로 식사한 시간으로부터 생존가능한 시간이 지났는지 확인
-		if (cmp_time - philo_stat->last_time_to_eat > philo_stat->philo_ref->time_to_die)
+		if (is_philo_died(philo_stat, cmp_time))
 		{
-			print_philo(philo_stat, my_gettimeofday(), "died");
-			pthread_mutex_lock(&philo_stat->philo_ref->m_die);
-			philo_stat->philo_ref->is_anyone_die = 1;
-			pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
-			return (NULL);
+			print_philo(philo_stat, cmp_time, "died");
+			set_dead_thread(philo_stat->philo_ref, 1);
 		}
 
 		// 현재 상태에 따라 이벤트처리
@@ -114,35 +115,20 @@ void *philo_routine(void* args)
 		// 생각중인경우 -> 식사 가능여부를 확인
 		if (philo_stat->cur_state == THINK)
 		{
-			while (!get_dead_thread(philo_stat->philo_ref) && !take_fork(philo_stat, 0))
+			// while (!get_dead_thread(philo_stat->philo_ref) && !take_fork(philo_stat, 0))
+			while (!take_fork(philo_stat, 0))
 			{
-				cmp_time = my_gettimeofday();
+				// cmp_time = my_gettimeofday();
 
-				// 생존시간 초과 체크
-				if (cmp_time - philo_stat->last_time_to_eat >= philo_stat->philo_ref->time_to_eat)
-					return (NULL);
-
-				// 못잡았으면 대기후 다시 while문 시도
+				// // 못잡았으면 대기후 다시 while문 시도
 				usleep (20);
 			}
 			print_philo(philo_stat, my_gettimeofday(), "has taken a fork1");//1
 
+			// while (!get_dead_thread(philo_stat->philo_ref) && !take_fork(philo_stat, 1))
 			while (!take_fork(philo_stat, 1))
 			{
-				// 죽은 스레드 체크
-				pthread_mutex_lock(&philo_stat->philo_ref->m_die);
-				if (philo_stat->philo_ref->is_anyone_die)
-				{
-					pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
-					return (NULL);
-				}
-				pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
-
-				cmp_time = my_gettimeofday();
-
-				// 생존시간 초과 체크
-				if (cmp_time - philo_stat->last_time_to_eat >= philo_stat->philo_ref->time_to_eat)
-					return (NULL);
+				// cmp_time = my_gettimeofday();
 				
 				// 못잡았으면 대기후 다시 while문 시도
 				usleep(20);
@@ -216,11 +202,11 @@ void *philo_routine(void* args)
 			sleep_time = philo_stat->philo_ref->time_to_eat - (my_gettimeofday() - philo_stat->last_time_to_eat);
 		else if (philo_stat->cur_state == SLEEP)
 			sleep_time = philo_stat->philo_ref->time_to_sleep - (my_gettimeofday() - philo_stat->last_time_to_sleep);
-		else if (philo_stat->cur_state == THINK)
-			sleep_time = philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat);
+		// else if (philo_stat->cur_state == THINK)
+			// sleep_time = philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat);
 
-		if (sleep_time > philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat))
-			sleep_time = philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat);
+		// if (sleep_time > philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat))
+			// sleep_time = philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat);
 		
 		if (sleep_time / 2 > 20)
 			usleep (sleep_time / 2);
@@ -258,11 +244,10 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 
 	// 짝수 철학자부터 일괄 생성
 	cnt = 0;
-	while (cnt < philo_ref->number_of_philosophers / 2)
+	while (cnt <= philo_ref->number_of_philosophers / 2)
 	{
 		idx = cnt * 2;
 		(*philo_arr)[idx].philo_num = idx;
-		// printf("philo num: %d\n", idx);
 		(*philo_arr)[idx].fork[0] = &philo_ref->fork_arr[idx];
 		(*philo_arr)[idx].m_fork[0] = &philo_ref->m_fork_arr[idx];
 		if (idx == philo_ref->number_of_philosophers - 1)
@@ -283,7 +268,7 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 
 	// 홀수 철학자 일괄 생성
 	cnt = 0;
-	while (cnt < philo_ref->number_of_philosophers / 2 + philo_ref->number_of_philosophers % 2)
+	while (cnt < philo_ref->number_of_philosophers / 2)
 	{
 		idx = cnt * 2 + 1;
 		(*philo_arr)[idx].philo_num = idx;
