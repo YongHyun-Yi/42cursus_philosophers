@@ -117,12 +117,12 @@ void *philo_routine(void* args)
 		{
 			while (!get_dead_thread(philo_stat->philo_ref) && !take_fork(philo_stat, 0))
 				usleep (200);
-			print_philo(philo_stat, my_gettimeofday(), "has taken a fork1");//1
+			print_philo(philo_stat, my_gettimeofday(), "has taken a fork");//1
 
 			while (!get_dead_thread(philo_stat->philo_ref) && !take_fork(philo_stat, 1))
 				usleep(200);
 
-			print_philo(philo_stat, my_gettimeofday(), "has taken a fork2");//2
+			print_philo(philo_stat, my_gettimeofday(), "has taken a fork");//2
 
 			philo_stat->cur_state = EAT;
 			philo_stat->last_time_to_eat = my_gettimeofday();
