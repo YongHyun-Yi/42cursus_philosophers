@@ -106,45 +106,95 @@ void *philo_routine(void* args)
 		if (philo_stat->cur_state == THINK)
 		{
 			// 함수화 버전
-			if (take_fork(philo_stat, 0))
-			{
-				print_philo(philo_stat, my_gettimeofday(), "has taken a fork1");//1
+			// if (take_fork(philo_stat, 0))
+			// {
+			// 	print_philo(philo_stat, my_gettimeofday(), "has taken a fork1");//1
 
-				int idx;
-				if (philo_stat->philo_num == philo_stat->philo_ref->number_of_philosophers - 1)
-					idx = 0;
-				else
-					idx = philo_stat->philo_ref->number_of_philosophers + 1;
+			// 	int idx;
+			// 	if (philo_stat->philo_num == philo_stat->philo_ref->number_of_philosophers - 1)
+			// 		idx = 0;
+			// 	else
+			// 		idx = philo_stat->philo_ref->number_of_philosophers + 1;
 				
-				while (1)
-				{
-					if (take_fork(philo_stat, 1))// 1 0
-					{
-						print_philo(philo_stat, my_gettimeofday(), "has taken a fork2");//2
+			// 	while (1)
+			// 	{
+			// 		if (take_fork(philo_stat, 1))// 1 0
+			// 		{
+			// 			print_philo(philo_stat, my_gettimeofday(), "has taken a fork2");//2
 
-						philo_stat->cur_state = EAT;
-						philo_stat->last_time_to_eat = my_gettimeofday();
-						print_philo(philo_stat, philo_stat->last_time_to_eat, "is eating");
-						break;
-					}
-					else
-					{
-						pthread_mutex_lock(&philo_stat->philo_ref->m_die);
-						if (philo_stat->philo_ref->is_anyone_die)
-						{
-							pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
-							break;
-						}
-						pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
-						usleep(20);
-					}
-				}
-				// printf("THINK WHILE BREAK\n");
-			}
+			// 			philo_stat->cur_state = EAT;
+			// 			philo_stat->last_time_to_eat = my_gettimeofday();
+			// 			print_philo(philo_stat, philo_stat->last_time_to_eat, "is eating");
+			// 			break;
+			// 		}
+			// 		else
+			// 		{
+			// 			print_philo(philo_stat, my_gettimeofday(), "cant take fork1");
+			// 			pthread_mutex_lock(&philo_stat->philo_ref->m_die);
+			// 			if (philo_stat->philo_ref->is_anyone_die)
+			// 			{
+			// 				pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
+			// 				break;
+			// 			}
+			// 			pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
+			// 			usleep(20);
+			// 		}
+			// 	}
+			// 	// printf("THINK WHILE BREAK\n");
+			// }
 			// else
 			// {
-			// 	print_philo(philo_stat, my_gettimeofday(), "cant take fork");
+			// 	print_philo(philo_stat, my_gettimeofday(), "cant take fork1");
 			// }
+
+			while (!take_fork(philo_stat, 0))
+			{
+				// 죽은 스레드 체크
+				pthread_mutex_lock(&philo_stat->philo_ref->m_die);
+				if (philo_stat->philo_ref->is_anyone_die)
+				{
+					pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
+					return (NULL);
+				}
+				pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
+
+				cmp_time = my_gettimeofday();
+
+				// 생존시간 초과 체크
+				if (cmp_time - philo_stat->last_time_to_eat >= philo_stat->philo_ref->time_to_eat)
+					return (NULL);
+
+				// 못잡았으면 대기후 다시 while문 시도
+				usleep (20);
+			}
+			print_philo(philo_stat, my_gettimeofday(), "has taken a fork1");//1
+
+			while (!take_fork(philo_stat, 1))
+			{
+				// 죽은 스레드 체크
+				pthread_mutex_lock(&philo_stat->philo_ref->m_die);
+				if (philo_stat->philo_ref->is_anyone_die)
+				{
+					pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
+					return (NULL);
+				}
+				pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
+
+				cmp_time = my_gettimeofday();
+
+				// 생존시간 초과 체크
+				if (cmp_time - philo_stat->last_time_to_eat >= philo_stat->philo_ref->time_to_eat)
+					return (NULL);
+				
+				// 못잡았으면 대기후 다시 while문 시도
+				usleep(20);
+			}
+
+			print_philo(philo_stat, my_gettimeofday(), "has taken a fork2");//2
+
+			philo_stat->cur_state = EAT;
+			philo_stat->last_time_to_eat = my_gettimeofday();
+			print_philo(philo_stat, philo_stat->last_time_to_eat, "is eating");
 		}
 
 		// 식사중인 경우 -> 식사 시간초과 확인
