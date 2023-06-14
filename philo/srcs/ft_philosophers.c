@@ -35,7 +35,7 @@ void print_err_msg(void)
 	printf("Must Eat ]⌟\033[0;0m\n");
 }
 
-int check_dead_thread(t_philo_ref *philo_ref)
+int get_dead_thread(t_philo_ref *philo_ref)
 {
 	int ret;
 
@@ -44,6 +44,13 @@ int check_dead_thread(t_philo_ref *philo_ref)
 	ret = philo_ref->is_anyone_die;
 	pthread_mutex_unlock(&philo_ref->m_die);
 	return (ret);
+}
+
+void set_dead_thread(t_philo_ref *philo_ref, int value)
+{
+	pthread_mutex_lock(&philo_ref->m_die);
+	philo_ref->is_anyone_die = value;
+	pthread_mutex_unlock(&philo_ref->m_die);
 }
 
 int take_fork(t_philo_stat *philo_stat, int is_right)
@@ -85,19 +92,8 @@ void *philo_routine(void* args)
 		if (philo_stat->philo_ref->number_of_times_must_eat == philo_stat->how_much_eat)
 			return (NULL);
 
-		// 아래의 두 케이스에서 죽은 철학자가 포크를 쥐고있었다면 포크를 놔준다?
-		// 그래도 시뮬레이션은 계속되어야 한다면 (출력은 없이)
-		// 일괄적으로 끝낼수 있는 방법은...?
-
 		// 하나라도 종료된 스레드가 있는지 확인
-		// pthread_mutex_lock(&philo_stat->philo_ref->m_die);
-		// if (philo_stat->philo_ref->is_anyone_die)
-		// {
-		// 	pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
-		// 	return (NULL);
-		// }
-		// pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
-		if (check_dead_thread(philo_stat->philo_ref))
+		if (get_dead_thread(philo_stat->philo_ref))
 			return (NULL);
 		
 		long cmp_time = my_gettimeofday();
@@ -118,17 +114,8 @@ void *philo_routine(void* args)
 		// 생각중인경우 -> 식사 가능여부를 확인
 		if (philo_stat->cur_state == THINK)
 		{
-			while (!take_fork(philo_stat, 0))
+			while (!get_dead_thread(philo_stat->philo_ref) && !take_fork(philo_stat, 0))
 			{
-				// 죽은 스레드 체크
-				pthread_mutex_lock(&philo_stat->philo_ref->m_die);
-				if (philo_stat->philo_ref->is_anyone_die)
-				{
-					pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
-					return (NULL);
-				}
-				pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
-
 				cmp_time = my_gettimeofday();
 
 				// 생존시간 초과 체크
@@ -300,7 +287,6 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 	{
 		idx = cnt * 2 + 1;
 		(*philo_arr)[idx].philo_num = idx;
-		// printf("philo num: %d\n", idx);
 		(*philo_arr)[idx].fork[0] = &philo_ref->fork_arr[idx];
 		(*philo_arr)[idx].m_fork[0] = &philo_ref->m_fork_arr[idx];
 		if (idx == philo_ref->number_of_philosophers - 1)
