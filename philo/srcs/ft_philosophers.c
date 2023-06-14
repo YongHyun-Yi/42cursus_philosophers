@@ -35,6 +35,17 @@ void print_err_msg(void)
 	printf("Must Eat ]⌟\033[0;0m\n");
 }
 
+int check_dead_thread(t_philo_ref *philo_ref)
+{
+	int ret;
+
+	// 죽은 스레드 체크
+	pthread_mutex_lock(&philo_ref->m_die);
+	ret = philo_ref->is_anyone_die;
+	pthread_mutex_unlock(&philo_ref->m_die);
+	return (ret);
+}
+
 int take_fork(t_philo_stat *philo_stat, int is_right)
 {
 	int ret;
@@ -79,13 +90,15 @@ void *philo_routine(void* args)
 		// 일괄적으로 끝낼수 있는 방법은...?
 
 		// 하나라도 종료된 스레드가 있는지 확인
-		pthread_mutex_lock(&philo_stat->philo_ref->m_die);
-		if (philo_stat->philo_ref->is_anyone_die)
-		{
-			pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
+		// pthread_mutex_lock(&philo_stat->philo_ref->m_die);
+		// if (philo_stat->philo_ref->is_anyone_die)
+		// {
+		// 	pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
+		// 	return (NULL);
+		// }
+		// pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
+		if (check_dead_thread(philo_stat->philo_ref))
 			return (NULL);
-		}
-		pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
 		
 		long cmp_time = my_gettimeofday();
 
@@ -105,48 +118,6 @@ void *philo_routine(void* args)
 		// 생각중인경우 -> 식사 가능여부를 확인
 		if (philo_stat->cur_state == THINK)
 		{
-			// 함수화 버전
-			// if (take_fork(philo_stat, 0))
-			// {
-			// 	print_philo(philo_stat, my_gettimeofday(), "has taken a fork1");//1
-
-			// 	int idx;
-			// 	if (philo_stat->philo_num == philo_stat->philo_ref->number_of_philosophers - 1)
-			// 		idx = 0;
-			// 	else
-			// 		idx = philo_stat->philo_ref->number_of_philosophers + 1;
-				
-			// 	while (1)
-			// 	{
-			// 		if (take_fork(philo_stat, 1))// 1 0
-			// 		{
-			// 			print_philo(philo_stat, my_gettimeofday(), "has taken a fork2");//2
-
-			// 			philo_stat->cur_state = EAT;
-			// 			philo_stat->last_time_to_eat = my_gettimeofday();
-			// 			print_philo(philo_stat, philo_stat->last_time_to_eat, "is eating");
-			// 			break;
-			// 		}
-			// 		else
-			// 		{
-			// 			print_philo(philo_stat, my_gettimeofday(), "cant take fork1");
-			// 			pthread_mutex_lock(&philo_stat->philo_ref->m_die);
-			// 			if (philo_stat->philo_ref->is_anyone_die)
-			// 			{
-			// 				pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
-			// 				break;
-			// 			}
-			// 			pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
-			// 			usleep(20);
-			// 		}
-			// 	}
-			// 	// printf("THINK WHILE BREAK\n");
-			// }
-			// else
-			// {
-			// 	print_philo(philo_stat, my_gettimeofday(), "cant take fork1");
-			// }
-
 			while (!take_fork(philo_stat, 0))
 			{
 				// 죽은 스레드 체크
@@ -253,18 +224,13 @@ void *philo_routine(void* args)
 			}
 		}
 
-		// usleep(20);
 		long sleep_time = 0;
 		if (philo_stat->cur_state == EAT)
 			sleep_time = philo_stat->philo_ref->time_to_eat - (my_gettimeofday() - philo_stat->last_time_to_eat);
 		else if (philo_stat->cur_state == SLEEP)
 			sleep_time = philo_stat->philo_ref->time_to_sleep - (my_gettimeofday() - philo_stat->last_time_to_sleep);
 		else if (philo_stat->cur_state == THINK)
-		{
-			// printf("THINK wait\n");
-			// sleep_time = 20;
 			sleep_time = philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat);
-		}
 
 		if (sleep_time > philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat))
 			sleep_time = philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat);
@@ -273,14 +239,6 @@ void *philo_routine(void* args)
 			usleep (sleep_time / 2);
 		else
 			usleep (20);
-
-		// long sleep_time = 0;
-		// if (philo_stat->cur_state == EAT)
-		// 	sleep_time = (my_gettimeofday() - philo_stat->last_time_to_eat);
-		// else if (philo_stat->cur_state == SLEEP)
-		// 	sleep_time = (my_gettimeofday() - philo_stat->last_time_to_sleep);
-		// if (sleep_time > 200)
-		// usleep (sleep_time / 2 * 1000);
 	}
 }
 
@@ -308,28 +266,6 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 	if (philo_ref->fork_arr == NULL)
 		return (0);
 	memset(philo_ref->fork_arr, 0, sizeof(int) * philo_ref->number_of_philosophers);
-	
-	// cnt = 0;
-	// while (cnt < philo_ref->number_of_philosophers)
-	// {
-	// 	(*philo_arr)[cnt].philo_num = cnt;
-	// 	(*philo_arr)[cnt].fork[0] = &philo_ref->fork_arr[cnt];
-	// 	(*philo_arr)[cnt].m_fork[0] = &philo_ref->m_fork_arr[cnt];
-	// 	if (cnt - 1 == philo_ref->number_of_philosophers)
-	// 	{
-	// 		(*philo_arr)[cnt].fork[1] = &philo_ref->fork_arr[0];
-	// 		(*philo_arr)[cnt].m_fork[1] = &philo_ref->m_fork_arr[0];
-	// 	}
-	// 	else
-	// 	{
-	// 		(*philo_arr)[cnt].fork[1] = &philo_ref->fork_arr[cnt + 1];
-	// 		(*philo_arr)[cnt].m_fork[1] = &philo_ref->m_fork_arr[cnt + 1];
-	// 	}
-	// 	(*philo_arr)[cnt].last_time_to_eat = philo_ref->start_time;
-	// 	(*philo_arr)[cnt].philo_ref = philo_ref;
-	// 	pthread_create(&(*philo_arr)[cnt].philo_thread, NULL, philo_routine, (void *)&(*philo_arr)[cnt]);
-	// 	cnt++;
-	// }
 
 	int idx = 0;
 
