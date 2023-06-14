@@ -115,23 +115,37 @@ void *philo_routine(void* args)
 		// 생각중인경우 -> 식사 가능여부를 확인
 		if (philo_stat->cur_state == THINK)
 		{
-			// while (!get_dead_thread(philo_stat->philo_ref) && !take_fork(philo_stat, 0))
-			while (!take_fork(philo_stat, 0))
+			while (!get_dead_thread(philo_stat->philo_ref) && !take_fork(philo_stat, 0))
+			// while (!take_fork(philo_stat, 0))
 			{
 				// cmp_time = my_gettimeofday();
 
 				// // 못잡았으면 대기후 다시 while문 시도
 				usleep (20);
+
+				// long st;
+				// st = philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat);
+				// if (st / 2 > 20)
+				// 	usleep(st / 2);
+				// else
+				// 	usleep(20);
 			}
 			print_philo(philo_stat, my_gettimeofday(), "has taken a fork1");//1
 
-			// while (!get_dead_thread(philo_stat->philo_ref) && !take_fork(philo_stat, 1))
-			while (!take_fork(philo_stat, 1))
+			while (!get_dead_thread(philo_stat->philo_ref) && !take_fork(philo_stat, 1))
+			// while (!take_fork(philo_stat, 1))
 			{
 				// cmp_time = my_gettimeofday();
 				
 				// 못잡았으면 대기후 다시 while문 시도
 				usleep(20);
+
+				// long st;
+				// st = philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat);
+				// if (st / 2 > 20)
+				// 	usleep(st / 2);
+				// else
+				// 	usleep(20);
 			}
 
 			print_philo(philo_stat, my_gettimeofday(), "has taken a fork2");//2
@@ -205,8 +219,9 @@ void *philo_routine(void* args)
 		// else if (philo_stat->cur_state == THINK)
 			// sleep_time = philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat);
 
-		// if (sleep_time > philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat))
-			// sleep_time = philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat);
+		long cmp_time2 = philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat);
+		if (sleep_time > cmp_time2)
+			sleep_time = cmp_time2;
 		
 		if (sleep_time / 2 > 20)
 			usleep (sleep_time / 2);
