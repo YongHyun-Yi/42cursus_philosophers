@@ -62,6 +62,7 @@ int	ft_atoi(const char *str);
 void	ft_putnbr_fd(int n, int fd);
 void	ft_putchar_fd(char c, int fd);
 long my_gettimeofday(void);
+int parse_philo(t_philo_ref *philo_ref, int argc, char **argv);
 
 /*
 
