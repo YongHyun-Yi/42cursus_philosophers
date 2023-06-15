@@ -95,7 +95,7 @@ void *philo_routine(void* args)
 		long cmp_time = my_gettimeofday();
 
 		// 먹어야 하는 횟수 0 일경우 바로 종료하도록 확인
-		if (philo_stat->philo_ref->number_of_times_must_eat == philo_stat->how_much_eat)
+		if (philo_stat->philo_ref->number_of_full_philosophers == philo_stat->philo_ref->number_of_philosophers)
 			return (NULL);
 
 		// 하나라도 종료된 스레드가 있는지 확인
@@ -151,7 +151,7 @@ void *philo_routine(void* args)
 				// 모두 채웠으면 종료
 				if (philo_stat->philo_ref->number_of_times_must_eat != -1)
 				{
-					philo_stat->how_much_eat += 1;
+					philo_stat->how_much_eat++;
 					if (philo_stat->philo_ref->number_of_times_must_eat == philo_stat->how_much_eat)
 					{
 						pthread_mutex_lock(&philo_stat->philo_ref->m_full_eat);
