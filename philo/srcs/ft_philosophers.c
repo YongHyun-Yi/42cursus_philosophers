@@ -127,18 +127,6 @@ void *philo_routine(void* args)
 			philo_stat->cur_state = EAT;
 			philo_stat->last_time_to_eat = my_gettimeofday();
 			print_philo(philo_stat, philo_stat->last_time_to_eat, "is eating");
-
-			// pthread_mutex_lock(philo_stat->m_fork[0]);
-
-			// print_philo(philo_stat, my_gettimeofday(), "has taken a fork");//1
-
-			// pthread_mutex_lock(philo_stat->m_fork[1]);
-
-			// print_philo(philo_stat, my_gettimeofday(), "has taken a fork");//2
-
-			// philo_stat->cur_state = EAT;
-			// philo_stat->last_time_to_eat = my_gettimeofday();
-			// print_philo(philo_stat, philo_stat->last_time_to_eat, "is eating");
 		}
 
 		// 식사중인 경우 -> 식사 시간초과 확인
@@ -324,8 +312,6 @@ int main(int argc, char **argv)
 	t_philo_stat	*philo_arr;
 	int cnt;
 
-	(void)argc;
-	(void)argv;
 	memset(&philo_ref, 0, sizeof(t_philo_ref));
 
 	if (!parse_philo(&philo_ref, argc, argv))
@@ -333,16 +319,15 @@ int main(int argc, char **argv)
 		print_err_msg();
 		return (0);
 	}
-
+	if (philo_ref.number_of_times_must_eat == 0)
+		return (0);
 	if (!init_philo(&philo_ref, &philo_arr))
 		return (0);
-
 	cnt = 0;
 	while (cnt < philo_ref.number_of_philosophers)
 	{
 		pthread_join(philo_arr[cnt].philo_thread, NULL);
 		cnt++;
 	}
-
 	return (0);
 }
