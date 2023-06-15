@@ -83,6 +83,128 @@ int take_fork(t_philo_stat *philo_stat, int is_right)
 	return (ret);
 }
 
+void *philo_routine2(void* args)
+{
+	t_philo_stat *philo_stat;
+
+	philo_stat = (t_philo_stat *)args;
+
+	if (philo_stat->philo_num % 2)
+		usleep(10 * philo_stat->philo_ref->number_of_philosophers);
+
+	while (1)
+	{
+		if (philo_stat->philo_ref->number_of_full_philosophers == philo_stat->philo_ref->number_of_philosophers)
+			return (NULL);
+		
+		if (get_dead_thread(philo_stat->philo_ref))
+			return (NULL);
+		
+		if (philo_stat->cur_state == THINK)
+		{
+			pthread_mutex_lock(philo_stat->m_fork[0]);
+
+			print_philo(philo_stat, my_gettimeofday(), "has taken a fork");
+
+			if (is_philo_died(philo_stat, my_gettimeofday()))
+			{
+				print_philo(philo_stat, my_gettimeofday(), "died1");
+				set_dead_thread(philo_stat->philo_ref, 1);
+				pthread_mutex_unlock(philo_stat->m_fork[0]);
+				printf("down fork1: %d\n", philo_stat->philo_num);
+				return (NULL);
+			}
+
+			print_philo(philo_stat, my_gettimeofday(), "has taken a fork");
+			printf("fork2: %d\n", philo_stat->philo_num + 1);
+
+			pthread_mutex_lock(philo_stat->m_fork[1]);
+
+			if (is_philo_died(philo_stat, my_gettimeofday()))
+			{
+				print_philo(philo_stat, my_gettimeofday(), "died2");
+				set_dead_thread(philo_stat->philo_ref, 1);
+				pthread_mutex_unlock(philo_stat->m_fork[0]);
+				printf("down fork1: %d\n", philo_stat->philo_num);
+				pthread_mutex_unlock(philo_stat->m_fork[1]);
+				printf("down fork2: %d\n", philo_stat->philo_num + 1);
+				return (NULL);
+			}
+
+
+			philo_stat->cur_state = EAT;
+			philo_stat->last_time_to_eat = my_gettimeofday();
+			print_philo(philo_stat, philo_stat->last_time_to_eat, "is eating");
+		}
+
+		else if (philo_stat->cur_state == EAT)
+		{
+			// if (is_philo_died(philo_stat, my_gettimeofday()))
+			// {
+			// 	print_philo(philo_stat, my_gettimeofday(), "died");
+			// 	set_dead_thread(philo_stat->philo_ref, 1);
+			// 	pthread_mutex_unlock(philo_stat->m_fork[0]);
+			// 	pthread_mutex_unlock(philo_stat->m_fork[1]);
+			// }
+
+			if (my_gettimeofday() - philo_stat->last_time_to_eat >= philo_stat->philo_ref->time_to_eat)
+			{
+				pthread_mutex_unlock(philo_stat->m_fork[0]);
+				pthread_mutex_unlock(philo_stat->m_fork[1]);
+
+				if (philo_stat->philo_ref->number_of_times_must_eat != -1)
+				{
+					philo_stat->how_much_eat++;
+					if (philo_stat->philo_ref->number_of_times_must_eat == philo_stat->how_much_eat)
+					{
+						pthread_mutex_lock(&philo_stat->philo_ref->m_full_eat);
+						philo_stat->philo_ref->number_of_full_philosophers++;
+						pthread_mutex_unlock(&philo_stat->philo_ref->m_full_eat);
+					}
+				}
+				philo_stat->cur_state = SLEEP;
+				philo_stat->last_time_to_sleep = my_gettimeofday();
+				print_philo(philo_stat, philo_stat->last_time_to_sleep, "is sleeping");
+			}
+		}
+
+		else
+		{
+			// if (is_philo_died(philo_stat, my_gettimeofday()))
+			// {
+			// 	print_philo(philo_stat, my_gettimeofday(), "died");
+			// 	set_dead_thread(philo_stat->philo_ref, 1);
+			// }
+
+			if (my_gettimeofday() - philo_stat->last_time_to_sleep >= philo_stat->philo_ref->time_to_sleep)
+			{
+				philo_stat->cur_state = THINK;
+				print_philo(philo_stat, my_gettimeofday(), "is thinking");
+				// usleep (1000);
+				usleep (100);
+			}
+		}
+
+		long sleep_time = 0;
+		if (philo_stat->cur_state == EAT)
+			sleep_time = philo_stat->philo_ref->time_to_eat - (my_gettimeofday() - philo_stat->last_time_to_eat);
+		else if (philo_stat->cur_state == SLEEP)
+			sleep_time = philo_stat->philo_ref->time_to_sleep - (my_gettimeofday() - philo_stat->last_time_to_sleep);
+
+		long cmp_time2 = philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat);
+		if (sleep_time > cmp_time2)
+			sleep_time = cmp_time2;
+		
+		if (sleep_time / 2 > 20)
+			usleep (sleep_time / 2);
+		else
+			usleep (20);
+	}
+	
+	// usleep(100);
+	return (NULL);
+}
+
 void *philo_routine(void* args)
 {
 	t_philo_stat *philo_stat;
@@ -279,7 +401,7 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 		}
 		(*philo_arr)[idx].last_time_to_eat = philo_ref->start_time;
 		(*philo_arr)[idx].philo_ref = philo_ref;
-		pthread_create(&(*philo_arr)[idx].philo_thread, NULL, philo_routine, (void *)&(*philo_arr)[idx]);
+		pthread_create(&(*philo_arr)[idx].philo_thread, NULL, philo_routine2, (void *)&(*philo_arr)[idx]);
 		cnt++;
 	}
 
@@ -303,7 +425,7 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 		}
 		(*philo_arr)[idx].last_time_to_eat = philo_ref->start_time;
 		(*philo_arr)[idx].philo_ref = philo_ref;
-		pthread_create(&(*philo_arr)[idx].philo_thread, NULL, philo_routine, (void *)&(*philo_arr)[idx]);
+		pthread_create(&(*philo_arr)[idx].philo_thread, NULL, philo_routine2, (void *)&(*philo_arr)[idx]);
 		cnt++;
 	}
 	return (1);
