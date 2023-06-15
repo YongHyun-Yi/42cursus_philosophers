@@ -102,6 +102,8 @@ void *philo_routine2(void* args)
 		
 		if (philo_stat->cur_state == THINK)
 		{
+			print_philo(philo_stat, my_gettimeofday(), "waiting a fork1");
+
 			pthread_mutex_lock(philo_stat->m_fork[0]);
 
 			print_philo(philo_stat, my_gettimeofday(), "has taken a fork");
@@ -115,10 +117,11 @@ void *philo_routine2(void* args)
 				return (NULL);
 			}
 
-			print_philo(philo_stat, my_gettimeofday(), "has taken a fork");
-			printf("fork2: %d\n", philo_stat->philo_num + 1);
+			print_philo(philo_stat, my_gettimeofday(), "waiting a fork2");
 
 			pthread_mutex_lock(philo_stat->m_fork[1]);
+
+			print_philo(philo_stat, my_gettimeofday(), "has taken a fork");
 
 			if (is_philo_died(philo_stat, my_gettimeofday()))
 			{
