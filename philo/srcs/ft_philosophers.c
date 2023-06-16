@@ -70,26 +70,6 @@ void set_dead_thread(t_philo_ref *philo_ref, int value)
 
 int take_fork(t_philo_stat *philo_stat, int is_right)
 {
-	// int ret;
-	// pthread_mutex_t *target_m_fork;
-	// int *target_fork;
-
-	// target_m_fork = philo_stat->m_fork[0];
-	// target_fork = philo_stat->fork[0];
-	// if (is_right)
-	// {
-	// 	target_m_fork = philo_stat->m_fork[1];
-	// 	target_fork = philo_stat->fork[1];
-	// }
-	// ret = 0;
-	// pthread_mutex_lock(target_m_fork);
-	// if (*target_fork == 0)
-	// {
-	// 	*target_fork = 1;
-	// 	ret = 1;
-	// }
-	// pthread_mutex_unlock(target_m_fork);
-	// return (ret);
 	int ret;
 
 	ret = 0;
@@ -311,13 +291,11 @@ void *philo_routine(void* args)
 				// 첫번째 포크의 상태를 변경
 				pthread_mutex_lock(philo_stat->m_fork[0]);
 				*philo_stat->fork[0] = 0;
-				// philo_stat->fork[0] = 0;
 				pthread_mutex_unlock(philo_stat->m_fork[0]);
 
 				// 두번째 포크의 상태를 변경
 				pthread_mutex_lock(philo_stat->m_fork[1]);
 				*philo_stat->fork[1] = 0;
-				// philo_stat->fork[1] = 0;
 				pthread_mutex_unlock(philo_stat->m_fork[1]);
 
 				// 먹어야 하는 횟수가 정해져있는 경우 +1 계산
