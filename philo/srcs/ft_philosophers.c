@@ -70,25 +70,33 @@ void set_dead_thread(t_philo_ref *philo_ref, int value)
 
 int take_fork(t_philo_stat *philo_stat, int is_right)
 {
-	int ret;
-	pthread_mutex_t *target_m_fork;
-	int *target_fork;
+	// int ret;
+	// pthread_mutex_t *target_m_fork;
+	// int *target_fork;
 
-	target_m_fork = philo_stat->m_fork[0];
-	target_fork = philo_stat->fork[0];
-	if (is_right)
-	{
-		target_m_fork = philo_stat->m_fork[1];
-		target_fork = philo_stat->fork[1];
-	}
-	ret = 0;
-	pthread_mutex_lock(target_m_fork);
-	if (*target_fork == 0)
-	{
-		*target_fork = 1;
-		ret = 1;
-	}
-	pthread_mutex_unlock(target_m_fork);
+	// target_m_fork = philo_stat->m_fork[0];
+	// target_fork = philo_stat->fork[0];
+	// if (is_right)
+	// {
+	// 	target_m_fork = philo_stat->m_fork[1];
+	// 	target_fork = philo_stat->fork[1];
+	// }
+	// ret = 0;
+	// pthread_mutex_lock(target_m_fork);
+	// if (*target_fork == 0)
+	// {
+	// 	*target_fork = 1;
+	// 	ret = 1;
+	// }
+	// pthread_mutex_unlock(target_m_fork);
+	// return (ret);
+	int ret;
+
+	pthread_mutex_lock(philo_stat->m_fork[is_right]);
+	if (philo_stat->fork[is_right] == 0)
+		philo_stat->fork[is_right] = 1;
+	ret = (philo_stat->fork[is_right] == 1);
+	pthread_mutex_unlock(philo_stat->m_fork[is_right]);
 	return (ret);
 }
 
@@ -299,12 +307,14 @@ void *philo_routine(void* args)
 			{
 				// 첫번째 포크의 상태를 변경
 				pthread_mutex_lock(philo_stat->m_fork[0]);
-				*philo_stat->fork[0] = 0;
+				// *philo_stat->fork[0] = 0;
+				philo_stat->fork[0] = 0;
 				pthread_mutex_unlock(philo_stat->m_fork[0]);
 
 				// 두번째 포크의 상태를 변경
 				pthread_mutex_lock(philo_stat->m_fork[1]);
-				*philo_stat->fork[1] = 0;
+				// *philo_stat->fork[1] = 0;
+				philo_stat->fork[1] = 0;
 				pthread_mutex_unlock(philo_stat->m_fork[1]);
 
 				// 먹어야 하는 횟수가 정해져있는 경우 +1 계산
@@ -398,16 +408,19 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 	{
 		idx = cnt * 2;
 		(*philo_arr)[idx].philo_num = idx;
-		(*philo_arr)[idx].fork[0] = &philo_ref->fork_arr[idx];
+		// (*philo_arr)[idx].fork[0] = &philo_ref->fork_arr[idx];
+		(*philo_arr)[idx].fork[0] = philo_ref->fork_arr[idx];
 		(*philo_arr)[idx].m_fork[0] = &philo_ref->m_fork_arr[idx];
 		if (idx == philo_ref->number_of_philosophers - 1)
 		{
-			(*philo_arr)[idx].fork[1] = &philo_ref->fork_arr[0];
+			// (*philo_arr)[idx].fork[1] = &philo_ref->fork_arr[0];
+			(*philo_arr)[idx].fork[1] = philo_ref->fork_arr[0];
 			(*philo_arr)[idx].m_fork[1] = &philo_ref->m_fork_arr[0];
 		}
 		else
 		{
-			(*philo_arr)[idx].fork[1] = &philo_ref->fork_arr[idx + 1];
+			// (*philo_arr)[idx].fork[1] = &philo_ref->fork_arr[idx + 1];
+			(*philo_arr)[idx].fork[1] = philo_ref->fork_arr[idx + 1];
 			(*philo_arr)[idx].m_fork[1] = &philo_ref->m_fork_arr[idx + 1];
 		}
 		(*philo_arr)[idx].last_time_to_eat = philo_ref->start_time;
@@ -422,16 +435,19 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 	{
 		idx = cnt * 2 + 1;
 		(*philo_arr)[idx].philo_num = idx;
-		(*philo_arr)[idx].fork[1] = &philo_ref->fork_arr[idx];
+		// (*philo_arr)[idx].fork[1] = &philo_ref->fork_arr[idx];
+		(*philo_arr)[idx].fork[1] = philo_ref->fork_arr[idx];
 		(*philo_arr)[idx].m_fork[1] = &philo_ref->m_fork_arr[idx];
 		if (idx == philo_ref->number_of_philosophers - 1)
 		{
-			(*philo_arr)[idx].fork[0] = &philo_ref->fork_arr[0];
+			// (*philo_arr)[idx].fork[0] = &philo_ref->fork_arr[0];
+			(*philo_arr)[idx].fork[0] = philo_ref->fork_arr[0];
 			(*philo_arr)[idx].m_fork[0] = &philo_ref->m_fork_arr[0];
 		}
 		else
 		{
-			(*philo_arr)[idx].fork[0] = &philo_ref->fork_arr[idx + 1];
+			// (*philo_arr)[idx].fork[0] = &philo_ref->fork_arr[idx + 1];
+			(*philo_arr)[idx].fork[0] = philo_ref->fork_arr[idx + 1];
 			(*philo_arr)[idx].m_fork[0] = &philo_ref->m_fork_arr[idx + 1];
 		}
 		(*philo_arr)[idx].last_time_to_eat = philo_ref->start_time;
@@ -442,54 +458,30 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 	return (1);
 }
 
-pthread_mutex_t my_mt;
-int my_var;
-
-void *test(void *arg)
-{
-	printf("hi\n");
-	pthread_mutex_lock(&my_mt);
-	printf("var: %d\n", my_var++);
-	sleep(1);
-	pthread_mutex_unlock(&my_mt);
-	printf("bye\n");
-	return (NULL);
-}
-
 int main(int argc, char **argv)
 {
-	// t_philo_ref		philo_ref;
-	// t_philo_stat	*philo_arr;
-	// int cnt;
+	t_philo_ref		philo_ref;
+	t_philo_stat	*philo_arr;
+	int cnt;
 
-	// memset(&philo_ref, 0, sizeof(t_philo_ref));
+	memset(&philo_ref, 0, sizeof(t_philo_ref));
 
-	// if (!parse_philo(&philo_ref, argc, argv))
-	// {
-	// 	print_err_msg();
-	// 	return (0);
-	// }
-	// if (philo_ref.number_of_times_must_eat == 0)
-	// 	return (0);
-	// if (!init_philo(&philo_ref, &philo_arr))
-	// 	return (0);
-	// cnt = 0;
-	// while (cnt < philo_ref.number_of_philosophers)
-	// {
-	// 	pthread_join(philo_arr[cnt].philo_thread, NULL);
-	// 	cnt++;
-	// }
-
-	pthread_mutex_init(&my_mt, NULL);
-	pthread_t my_thread[10];
-	for (int i = 0; i < 10; i++)
+	if (!parse_philo(&philo_ref, argc, argv))
 	{
-		pthread_create(&my_thread[i], NULL, test, NULL);
-		usleep(200);
+		print_err_msg();
+		return (0);
 	}
-
-	for (int i = 0; i < 10; i++)
-		pthread_join(my_thread[i], NULL);
+	if (philo_ref.number_of_times_must_eat == 0)
+		return (0);
+	if (!init_philo(&philo_ref, &philo_arr))
+		return (0);
+		
+	cnt = 0;
+	while (cnt < philo_ref.number_of_philosophers)
+	{
+		pthread_join(philo_arr[cnt].philo_thread, NULL);
+		cnt++;
+	}
 
 	return (0);
 }
