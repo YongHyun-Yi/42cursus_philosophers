@@ -224,7 +224,7 @@ void *philo_routine(void* args)
 	if (philo_stat->philo_num % 2)
 	{
 		print_philo(philo_stat, my_gettimeofday(), "is thinking");
-		usleep(10 * philo_stat->philo_num);
+		usleep(10 * philo_stat->philo_ref->number_of_philosophers);
 	}
 	// printf("philo num: %d\n", philo_stat->philo_num);
 	
