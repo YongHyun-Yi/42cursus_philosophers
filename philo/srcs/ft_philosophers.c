@@ -222,8 +222,10 @@ void *philo_routine(void* args)
 	philo_stat = (t_philo_stat *)args;
 	
 	if (philo_stat->philo_num % 2)
+	{
+		print_philo(philo_stat, my_gettimeofday(), "is thinking");
 		usleep(10 * philo_stat->philo_num);
-	print_philo(philo_stat, my_gettimeofday(), "is thinking");
+	}
 	// printf("philo num: %d\n", philo_stat->philo_num);
 	
 	while (1)
