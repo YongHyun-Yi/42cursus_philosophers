@@ -442,30 +442,54 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 	return (1);
 }
 
+pthread_mutex_t my_mt;
+int my_var;
 
+void *test(void *arg)
+{
+	printf("hi\n");
+	pthread_mutex_lock(&my_mt);
+	printf("var: %d\n", my_var++);
+	sleep(1);
+	pthread_mutex_unlock(&my_mt);
+	printf("bye\n");
+	return (NULL);
+}
 
 int main(int argc, char **argv)
 {
-	t_philo_ref		philo_ref;
-	t_philo_stat	*philo_arr;
-	int cnt;
+	// t_philo_ref		philo_ref;
+	// t_philo_stat	*philo_arr;
+	// int cnt;
 
-	memset(&philo_ref, 0, sizeof(t_philo_ref));
+	// memset(&philo_ref, 0, sizeof(t_philo_ref));
 
-	if (!parse_philo(&philo_ref, argc, argv))
+	// if (!parse_philo(&philo_ref, argc, argv))
+	// {
+	// 	print_err_msg();
+	// 	return (0);
+	// }
+	// if (philo_ref.number_of_times_must_eat == 0)
+	// 	return (0);
+	// if (!init_philo(&philo_ref, &philo_arr))
+	// 	return (0);
+	// cnt = 0;
+	// while (cnt < philo_ref.number_of_philosophers)
+	// {
+	// 	pthread_join(philo_arr[cnt].philo_thread, NULL);
+	// 	cnt++;
+	// }
+
+	pthread_mutex_init(&my_mt, NULL);
+	pthread_t my_thread[10];
+	for (int i = 0; i < 10; i++)
 	{
-		print_err_msg();
-		return (0);
+		pthread_create(&my_thread[i], NULL, test, NULL);
+		usleep(200);
 	}
-	if (philo_ref.number_of_times_must_eat == 0)
-		return (0);
-	if (!init_philo(&philo_ref, &philo_arr))
-		return (0);
-	cnt = 0;
-	while (cnt < philo_ref.number_of_philosophers)
-	{
-		pthread_join(philo_arr[cnt].philo_thread, NULL);
-		cnt++;
-	}
+
+	for (int i = 0; i < 10; i++)
+		pthread_join(my_thread[i], NULL);
+
 	return (0);
 }
