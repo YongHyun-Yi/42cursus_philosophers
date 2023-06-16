@@ -230,10 +230,7 @@ void *philo_routine(void* args)
 	{
 		long cmp_time = my_gettimeofday();
 
-		// 먹어야 하는 횟수 0 일경우 바로 종료하도록 확인
-		// printf("full philo: %d\n", philo_stat->philo_ref->number_of_full_philosophers);
-		// printf("num of philo:%d\n", philo_stat->philo_ref->number_of_philosophers);
-		if (philo_stat->philo_ref->number_of_full_philosophers == philo_stat->philo_ref->number_of_philosophers)
+		if (is_all_philo_full(philo_stat->philo_ref))
 			return (NULL);
 
 		// 하나라도 종료된 스레드가 있는지 확인
@@ -245,6 +242,7 @@ void *philo_routine(void* args)
 		{
 			print_philo(philo_stat, cmp_time, "died");
 			set_dead_thread(philo_stat->philo_ref, 1);
+			return (NULL);
 		}
 
 		// 현재 상태에 따라 이벤트처리
@@ -255,7 +253,8 @@ void *philo_routine(void* args)
 		{
 			while (!get_dead_thread(philo_stat->philo_ref) && !take_fork(philo_stat, 0))
 			{
-				usleep (200);
+				// usleep (200);
+				usleep(philo_stat->philo_ref->number_of_philosophers);
 				cmp_time = my_gettimeofday();
 			}
 			
@@ -411,7 +410,7 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 		}
 		(*philo_arr)[idx].last_time_to_eat = philo_ref->start_time;
 		(*philo_arr)[idx].philo_ref = philo_ref;
-		pthread_create(&(*philo_arr)[idx].philo_thread, NULL, philo_routine2, (void *)&(*philo_arr)[idx]);
+		pthread_create(&(*philo_arr)[idx].philo_thread, NULL, philo_routine, (void *)&(*philo_arr)[idx]);
 		cnt++;
 	}
 
@@ -435,7 +434,7 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 		}
 		(*philo_arr)[idx].last_time_to_eat = philo_ref->start_time;
 		(*philo_arr)[idx].philo_ref = philo_ref;
-		pthread_create(&(*philo_arr)[idx].philo_thread, NULL, philo_routine2, (void *)&(*philo_arr)[idx]);
+		pthread_create(&(*philo_arr)[idx].philo_thread, NULL, philo_routine, (void *)&(*philo_arr)[idx]);
 		cnt++;
 	}
 	return (1);
