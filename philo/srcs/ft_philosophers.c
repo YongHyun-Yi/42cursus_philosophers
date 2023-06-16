@@ -378,6 +378,23 @@ void *philo_routine(void* args)
 	}
 }
 
+int m_fork_init(t_philo_ref *philo_ref)
+{
+	int cnt;
+
+	philo_ref->m_fork_arr = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * philo_ref->number_of_philosophers);
+	if (philo_ref->m_fork_arr == NULL)
+		return (0);
+	cnt = 0;
+	while (cnt < philo_ref->number_of_philosophers)
+	{
+		if (pthread_mutex_init(&philo_ref->m_fork_arr[cnt], NULL) == -1)
+			return (0);
+		cnt++;
+	}
+	return (1);
+}
+
 int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 {
 	int cnt;
@@ -386,12 +403,15 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 	pthread_mutex_init(&philo_ref->m_die, NULL);
 	pthread_mutex_init(&philo_ref->m_full_eat, NULL);
 
-	philo_ref->m_fork_arr = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * philo_ref->number_of_philosophers);
-	if (philo_ref->m_fork_arr == NULL)
-		return (0);
+	// philo_ref->m_fork_arr = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * philo_ref->number_of_philosophers);
+	// if (philo_ref->m_fork_arr == NULL)
+	// 	return (0);
 	
-	for (int i = 0; i < philo_ref->number_of_philosophers; i++)
-		pthread_mutex_init(&philo_ref->m_fork_arr[i], NULL);
+	// for (int i = 0; i < philo_ref->number_of_philosophers; i++)
+	// 	pthread_mutex_init(&philo_ref->m_fork_arr[i], NULL);
+
+	if (!m_fork_init(philo_ref))
+		return (0);
 	
 	*philo_arr = (t_philo_stat *)malloc(sizeof(t_philo_stat) * philo_ref->number_of_philosophers);
 	if (*philo_arr == NULL)
@@ -412,18 +432,15 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 		idx = cnt * 2;
 		(*philo_arr)[idx].philo_num = idx;
 		(*philo_arr)[idx].fork[0] = &philo_ref->fork_arr[idx];
-		// (*philo_arr)[idx].fork[0] = philo_ref->fork_arr[idx];
 		(*philo_arr)[idx].m_fork[0] = &philo_ref->m_fork_arr[idx];
 		if (idx == philo_ref->number_of_philosophers - 1)
 		{
 			(*philo_arr)[idx].fork[1] = &philo_ref->fork_arr[0];
-			// (*philo_arr)[idx].fork[1] = philo_ref->fork_arr[0];
 			(*philo_arr)[idx].m_fork[1] = &philo_ref->m_fork_arr[0];
 		}
 		else
 		{
 			(*philo_arr)[idx].fork[1] = &philo_ref->fork_arr[idx + 1];
-			// (*philo_arr)[idx].fork[1] = philo_ref->fork_arr[idx + 1];
 			(*philo_arr)[idx].m_fork[1] = &philo_ref->m_fork_arr[idx + 1];
 		}
 		(*philo_arr)[idx].last_time_to_eat = philo_ref->start_time;
@@ -439,18 +456,15 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 		idx = cnt * 2 + 1;
 		(*philo_arr)[idx].philo_num = idx;
 		(*philo_arr)[idx].fork[1] = &philo_ref->fork_arr[idx];
-		// (*philo_arr)[idx].fork[1] = philo_ref->fork_arr[idx];
 		(*philo_arr)[idx].m_fork[1] = &philo_ref->m_fork_arr[idx];
 		if (idx == philo_ref->number_of_philosophers - 1)
 		{
 			(*philo_arr)[idx].fork[0] = &philo_ref->fork_arr[0];
-			// (*philo_arr)[idx].fork[0] = philo_ref->fork_arr[0];
 			(*philo_arr)[idx].m_fork[0] = &philo_ref->m_fork_arr[0];
 		}
 		else
 		{
 			(*philo_arr)[idx].fork[0] = &philo_ref->fork_arr[idx + 1];
-			// (*philo_arr)[idx].fork[0] = philo_ref->fork_arr[idx + 1];
 			(*philo_arr)[idx].m_fork[0] = &philo_ref->m_fork_arr[idx + 1];
 		}
 		(*philo_arr)[idx].last_time_to_eat = philo_ref->start_time;
