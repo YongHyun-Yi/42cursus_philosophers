@@ -34,10 +34,19 @@ void print_err_msg(void)
 	printf("Time to Sleep, \033[1;30m[ Number of Times Each Philosopher ");
 	printf("Must Eat ]⌟\033[0;0m\n");
 }
+
+int is_all_philo_full(t_philo_ref *philo_ref)
+{
+	int ret;
+
+	pthread_mutex_lock(&philo_ref->m_full_eat);
+	ret = (philo_ref->number_of_full_philosophers == philo_ref->number_of_philosophers);
+	pthread_mutex_unlock(&philo_ref->m_full_eat);
+	return (ret);
+}
+
 int is_philo_died(t_philo_stat *philo_stat, long time)
 {
-	// printf("philo num: %d\n", philo_stat->philo_num);
-	// printf("time - philo_stat->last_time_to_eat: %ld\n", time - philo_stat->last_time_to_eat);
 	return (time - philo_stat->last_time_to_eat > philo_stat->philo_ref->time_to_die);
 }
 
@@ -86,23 +95,35 @@ int take_fork(t_philo_stat *philo_stat, int is_right)
 void *philo_routine2(void* args)
 {
 	t_philo_stat *philo_stat;
+	long cmp_time;
 
 	philo_stat = (t_philo_stat *)args;
 
 	if (philo_stat->philo_num % 2)
+	{
 		usleep(10 * philo_stat->philo_ref->number_of_philosophers);
+		print_philo(philo_stat, philo_stat->last_time_to_eat, "is thinking");
+	}
 
 	while (1)
 	{
-		if (philo_stat->philo_ref->number_of_full_philosophers == philo_stat->philo_ref->number_of_philosophers)
+		if (is_all_philo_full(philo_stat->philo_ref))
 			return (NULL);
 		
 		if (get_dead_thread(philo_stat->philo_ref))
 			return (NULL);
 		
+		cmp_time = my_gettimeofday();
+		
+		if (is_philo_died(philo_stat, cmp_time))
+		{
+			print_philo(philo_stat, cmp_time, "died1");
+			set_dead_thread(philo_stat->philo_ref, 1);
+		}
+		
 		if (philo_stat->cur_state == THINK)
 		{
-			print_philo(philo_stat, my_gettimeofday(), "waiting a fork1");
+			// print_philo(philo_stat, my_gettimeofday(), "waiting a fork1");
 
 			pthread_mutex_lock(philo_stat->m_fork[0]);
 
@@ -113,11 +134,11 @@ void *philo_routine2(void* args)
 				print_philo(philo_stat, my_gettimeofday(), "died1");
 				set_dead_thread(philo_stat->philo_ref, 1);
 				pthread_mutex_unlock(philo_stat->m_fork[0]);
-				printf("down fork1: %d\n", philo_stat->philo_num);
+				// printf("down fork1: %d\n", philo_stat->philo_num);
 				return (NULL);
 			}
 
-			print_philo(philo_stat, my_gettimeofday(), "waiting a fork2");
+			// print_philo(philo_stat, my_gettimeofday(), "waiting a fork2");
 
 			pthread_mutex_lock(philo_stat->m_fork[1]);
 
@@ -128,12 +149,11 @@ void *philo_routine2(void* args)
 				print_philo(philo_stat, my_gettimeofday(), "died2");
 				set_dead_thread(philo_stat->philo_ref, 1);
 				pthread_mutex_unlock(philo_stat->m_fork[0]);
-				printf("down fork1: %d\n", philo_stat->philo_num);
+				// printf("down fork1: %d\n", philo_stat->philo_num);
 				pthread_mutex_unlock(philo_stat->m_fork[1]);
-				printf("down fork2: %d\n", philo_stat->philo_num + 1);
+				// printf("down fork2: %d\n", philo_stat->philo_num + 1);
 				return (NULL);
 			}
-
 
 			philo_stat->cur_state = EAT;
 			philo_stat->last_time_to_eat = my_gettimeofday();
@@ -142,15 +162,7 @@ void *philo_routine2(void* args)
 
 		else if (philo_stat->cur_state == EAT)
 		{
-			// if (is_philo_died(philo_stat, my_gettimeofday()))
-			// {
-			// 	print_philo(philo_stat, my_gettimeofday(), "died");
-			// 	set_dead_thread(philo_stat->philo_ref, 1);
-			// 	pthread_mutex_unlock(philo_stat->m_fork[0]);
-			// 	pthread_mutex_unlock(philo_stat->m_fork[1]);
-			// }
-
-			if (my_gettimeofday() - philo_stat->last_time_to_eat >= philo_stat->philo_ref->time_to_eat)
+			if (cmp_time - philo_stat->last_time_to_eat >= philo_stat->philo_ref->time_to_eat)
 			{
 				pthread_mutex_unlock(philo_stat->m_fork[0]);
 				pthread_mutex_unlock(philo_stat->m_fork[1]);
@@ -166,35 +178,30 @@ void *philo_routine2(void* args)
 					}
 				}
 				philo_stat->cur_state = SLEEP;
-				philo_stat->last_time_to_sleep = my_gettimeofday();
+				philo_stat->last_time_to_sleep = cmp_time;
 				print_philo(philo_stat, philo_stat->last_time_to_sleep, "is sleeping");
 			}
 		}
 
 		else
 		{
-			// if (is_philo_died(philo_stat, my_gettimeofday()))
-			// {
-			// 	print_philo(philo_stat, my_gettimeofday(), "died");
-			// 	set_dead_thread(philo_stat->philo_ref, 1);
-			// }
-
-			if (my_gettimeofday() - philo_stat->last_time_to_sleep >= philo_stat->philo_ref->time_to_sleep)
+			if (cmp_time - philo_stat->last_time_to_sleep >= philo_stat->philo_ref->time_to_sleep)
 			{
 				philo_stat->cur_state = THINK;
-				print_philo(philo_stat, my_gettimeofday(), "is thinking");
-				// usleep (1000);
-				usleep (100);
+				print_philo(philo_stat, cmp_time, "is thinking");
+				usleep (1000);
 			}
 		}
 
 		long sleep_time = 0;
 		if (philo_stat->cur_state == EAT)
-			sleep_time = philo_stat->philo_ref->time_to_eat - (my_gettimeofday() - philo_stat->last_time_to_eat);
+			sleep_time = philo_stat->philo_ref->time_to_eat - (cmp_time - philo_stat->last_time_to_eat);
 		else if (philo_stat->cur_state == SLEEP)
-			sleep_time = philo_stat->philo_ref->time_to_sleep - (my_gettimeofday() - philo_stat->last_time_to_sleep);
+			sleep_time = philo_stat->philo_ref->time_to_sleep - (cmp_time - philo_stat->last_time_to_sleep);
+		else if (philo_stat->cur_state == SLEEP)
+			sleep_time = philo_stat->philo_ref->time_to_die - (cmp_time - philo_stat->last_time_to_eat);
 
-		long cmp_time2 = philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat);
+		long cmp_time2 = philo_stat->philo_ref->time_to_die - (cmp_time - philo_stat->last_time_to_eat);
 		if (sleep_time > cmp_time2)
 			sleep_time = cmp_time2;
 		
