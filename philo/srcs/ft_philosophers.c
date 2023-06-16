@@ -343,6 +343,24 @@ void *philo_routine(void* args)
 	}
 }
 
+int philo_arr_init(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
+{
+	*philo_arr = (t_philo_stat *)malloc(sizeof(t_philo_stat) * philo_ref->number_of_philosophers);
+	if (*philo_arr == NULL)
+		return (0);
+	memset(*philo_arr, 0, sizeof(t_philo_stat) * philo_ref->number_of_philosophers);
+	return (1);
+}
+
+int fork_arr_init(t_philo_ref *philo_ref)
+{
+	philo_ref->fork_arr = malloc(sizeof(int) * philo_ref->number_of_philosophers);
+	if (philo_ref->fork_arr == NULL)
+		return (0);
+	memset(philo_ref->fork_arr, 0, sizeof(int) * philo_ref->number_of_philosophers);
+	return (1);
+}
+
 int m_fork_init(t_philo_ref *philo_ref)
 {
 	int cnt;
@@ -367,19 +385,15 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 	philo_ref->start_time = my_gettimeofday();
 	pthread_mutex_init(&philo_ref->m_die, NULL);
 	pthread_mutex_init(&philo_ref->m_full_eat, NULL);
-	
+
 	if (!m_fork_init(philo_ref))
 		return (0);
-	
-	*philo_arr = (t_philo_stat *)malloc(sizeof(t_philo_stat) * philo_ref->number_of_philosophers);
-	if (*philo_arr == NULL)
-		return (0);
-	memset(*philo_arr, 0, sizeof(t_philo_stat) * philo_ref->number_of_philosophers);
 
-	philo_ref->fork_arr = malloc(sizeof(int) * philo_ref->number_of_philosophers);
-	if (philo_ref->fork_arr == NULL)
+	if (!philo_arr_init(philo_ref, philo_arr))
 		return (0);
-	memset(philo_ref->fork_arr, 0, sizeof(int) * philo_ref->number_of_philosophers);
+
+	if (!fork_arr_init(philo_ref))
+		return (0);
 
 	int idx = 0;
 
@@ -440,6 +454,7 @@ int main(int argc, char **argv)
 	int cnt;
 
 	memset(&philo_ref, 0, sizeof(t_philo_ref));
+	
 
 	if (!parse_philo(&philo_ref, argc, argv))
 	{
