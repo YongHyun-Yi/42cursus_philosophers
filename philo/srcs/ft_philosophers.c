@@ -202,7 +202,6 @@ void *philo_routine2(void* args)
 			usleep (20);
 	}
 	
-	// usleep(100);
 	return (NULL);
 }
 
@@ -214,15 +213,15 @@ void *philo_routine(void* args)
 	
 	if (philo_stat->philo_num % 2)
 	{
-		print_philo(philo_stat, my_gettimeofday(), "is thinking");
 		usleep(10 * philo_stat->philo_ref->number_of_philosophers);
+		print_philo(philo_stat, my_gettimeofday(), "is thinking");
 	}
-	// printf("philo num: %d\n", philo_stat->philo_num);
 	
 	while (1)
 	{
 		long cmp_time = my_gettimeofday();
 
+		// 모두 다 먹었는지 확인
 		if (is_all_philo_full(philo_stat->philo_ref))
 			return (NULL);
 
@@ -239,7 +238,6 @@ void *philo_routine(void* args)
 		}
 
 		// 현재 상태에 따라 이벤트처리
-		// 포크는 다른 스레드도 접근할수있는 ref 구조체에 있기 때문에 포크별로 mutex를 생성했음
 
 		// 생각중인경우 -> 식사 가능여부를 확인
 		if (philo_stat->cur_state == THINK)
@@ -251,8 +249,6 @@ void *philo_routine(void* args)
 				cmp_time = my_gettimeofday();
 			}
 			
-			// printf("philo num: %d\n", philo_stat->philo_num);
-
 			if (is_philo_died(philo_stat, cmp_time))
 			{
 				print_philo(philo_stat, cmp_time, "died");
@@ -283,7 +279,6 @@ void *philo_routine(void* args)
 		// 식사중인 경우 -> 식사 시간초과 확인
 		else if (philo_stat->cur_state == EAT)
 		{
-			// cmp_time = my_gettimeofday();
 
 			// 식사 시작으로부터 time_to_eat 만큼의 시간이 경과했을때
 			if (cmp_time - philo_stat->last_time_to_eat >= philo_stat->philo_ref->time_to_eat)
@@ -299,7 +294,6 @@ void *philo_routine(void* args)
 				pthread_mutex_unlock(philo_stat->m_fork[1]);
 
 				// 먹어야 하는 횟수가 정해져있는 경우 +1 계산
-				// 모두 채웠으면 종료
 				if (philo_stat->philo_ref->number_of_times_must_eat != -1)
 				{
 					philo_stat->how_much_eat++;
@@ -315,10 +309,7 @@ void *philo_routine(void* args)
 				philo_stat->cur_state = SLEEP;
 
 				// 마지막으로 수면한 시간을 갱신
-				// philo_stat->last_time_to_sleep = my_gettimeofday();
 				philo_stat->last_time_to_sleep = cmp_time;
-
-				// print_philo(philo_stat, philo_stat->last_time_to_sleep, "is sleeping");
 				print_philo(philo_stat, cmp_time, "is sleeping");
 			}
 		}
@@ -326,15 +317,11 @@ void *philo_routine(void* args)
 		// 수면중인 경우 -> 수면 시간초과 확인
 		else
 		{
-			// cmp_time = my_gettimeofday();
-
 			// 마지막으로 수면한 시간으로부터 time_to_sleep 만큼의 시간이 경과했을때
 			if (cmp_time - philo_stat->last_time_to_sleep >= philo_stat->philo_ref->time_to_sleep)
 			{
 				// 철학자의 상태를 변경
 				philo_stat->cur_state = THINK;
-
-				// print_philo(philo_stat, my_gettimeofday(), "is thinking");
 				print_philo(philo_stat, cmp_time, "is thinking");
 			}
 		}
@@ -380,14 +367,7 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 	philo_ref->start_time = my_gettimeofday();
 	pthread_mutex_init(&philo_ref->m_die, NULL);
 	pthread_mutex_init(&philo_ref->m_full_eat, NULL);
-
-	// philo_ref->m_fork_arr = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * philo_ref->number_of_philosophers);
-	// if (philo_ref->m_fork_arr == NULL)
-	// 	return (0);
 	
-	// for (int i = 0; i < philo_ref->number_of_philosophers; i++)
-	// 	pthread_mutex_init(&philo_ref->m_fork_arr[i], NULL);
-
 	if (!m_fork_init(philo_ref))
 		return (0);
 	
