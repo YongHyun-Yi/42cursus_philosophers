@@ -68,6 +68,16 @@ void set_dead_thread(t_philo_ref *philo_ref, int value)
 	pthread_mutex_unlock(&philo_ref->m_die);
 }
 
+void down_fork(t_philo_stat *philo_stat)
+{
+	pthread_mutex_lock(philo_stat->m_fork[0]);
+	*philo_stat->fork[0] = 0;
+	pthread_mutex_unlock(philo_stat->m_fork[0]);
+	pthread_mutex_lock(philo_stat->m_fork[1]);
+	*philo_stat->fork[1] = 0;
+	pthread_mutex_unlock(philo_stat->m_fork[1]);
+}
+
 int take_fork(t_philo_stat *philo_stat, int is_right)
 {
 	int ret;
@@ -205,6 +215,27 @@ void *philo_routine2(void* args) // only mutex
 	return (NULL);
 }
 
+void philo_eat(t_philo_stat *philo_stat, long cmp_time)
+{
+	if (cmp_time - philo_stat->last_time_to_eat >= philo_stat->philo_ref->time_to_eat)
+	{
+		down_fork(philo_stat);
+		if (philo_stat->philo_ref->number_of_times_must_eat != -1)
+		{
+			philo_stat->how_much_eat++;
+			if (philo_stat->philo_ref->number_of_times_must_eat == philo_stat->how_much_eat)
+			{
+				pthread_mutex_lock(&philo_stat->philo_ref->m_full_eat);
+				philo_stat->philo_ref->number_of_full_philosophers++;
+				pthread_mutex_unlock(&philo_stat->philo_ref->m_full_eat);
+			}
+		}
+		philo_stat->cur_state = SLEEP;
+		philo_stat->last_time_to_sleep = cmp_time;
+		print_philo(philo_stat, cmp_time, "is sleeping");
+	}
+}
+
 void philo_think(t_philo_stat *philo_stat, long cmp_time)
 {
 	int fork_idx;
@@ -268,41 +299,7 @@ void *philo_routine(void* args) // lock spin
 
 		// 식사중인 경우 -> 식사 시간초과 확인
 		else if (philo_stat->cur_state == EAT)
-		{
-
-			// 식사 시작으로부터 time_to_eat 만큼의 시간이 경과했을때
-			if (cmp_time - philo_stat->last_time_to_eat >= philo_stat->philo_ref->time_to_eat)
-			{
-				// 첫번째 포크의 상태를 변경
-				pthread_mutex_lock(philo_stat->m_fork[0]);
-				*philo_stat->fork[0] = 0;
-				pthread_mutex_unlock(philo_stat->m_fork[0]);
-
-				// 두번째 포크의 상태를 변경
-				pthread_mutex_lock(philo_stat->m_fork[1]);
-				*philo_stat->fork[1] = 0;
-				pthread_mutex_unlock(philo_stat->m_fork[1]);
-
-				// 먹어야 하는 횟수가 정해져있는 경우 +1 계산
-				if (philo_stat->philo_ref->number_of_times_must_eat != -1)
-				{
-					philo_stat->how_much_eat++;
-					if (philo_stat->philo_ref->number_of_times_must_eat == philo_stat->how_much_eat)
-					{
-						pthread_mutex_lock(&philo_stat->philo_ref->m_full_eat);
-						philo_stat->philo_ref->number_of_full_philosophers++;
-						pthread_mutex_unlock(&philo_stat->philo_ref->m_full_eat);
-					}
-				}
-				
-				// 철학자의 상태를 변경
-				philo_stat->cur_state = SLEEP;
-
-				// 마지막으로 수면한 시간을 갱신
-				philo_stat->last_time_to_sleep = cmp_time;
-				print_philo(philo_stat, cmp_time, "is sleeping");
-			}
-		}
+			philo_eat(philo_stat, cmp_time);
 
 		// 수면중인 경우 -> 수면 시간초과 확인
 		else
