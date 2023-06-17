@@ -215,6 +215,15 @@ void *philo_routine2(void* args) // only mutex
 	return (NULL);
 }
 
+void philo_sleep(t_philo_stat *philo_stat, long cmp_time)
+{
+	if (cmp_time - philo_stat->last_time_to_sleep >= philo_stat->philo_ref->time_to_sleep)
+	{
+		philo_stat->cur_state = THINK;
+		print_philo(philo_stat, cmp_time, "is thinking");
+	}
+}
+
 void philo_eat(t_philo_stat *philo_stat, long cmp_time)
 {
 	if (cmp_time - philo_stat->last_time_to_eat >= philo_stat->philo_ref->time_to_eat)
@@ -262,6 +271,27 @@ void philo_think(t_philo_stat *philo_stat, long cmp_time)
 	print_philo(philo_stat, philo_stat->last_time_to_eat, "is eating");
 }
 
+long get_sleep_time(t_philo_stat *philo_stat, long cmp_time)
+{
+	long sleep_time;
+	long cmp_time2;
+
+	sleep_time = 0;
+	if (philo_stat->cur_state == EAT)
+		sleep_time = philo_stat->philo_ref->time_to_eat - (cmp_time - philo_stat->last_time_to_eat);
+	else if (philo_stat->cur_state == SLEEP)
+		sleep_time = philo_stat->philo_ref->time_to_sleep - (cmp_time - philo_stat->last_time_to_sleep);
+
+	cmp_time2 = philo_stat->philo_ref->time_to_die - (cmp_time - philo_stat->last_time_to_eat);
+	if (sleep_time > cmp_time2)
+		sleep_time = cmp_time2;
+	
+	if (sleep_time / 2 > 200)
+		return (sleep_time / 2 * 1000);
+	else
+		return (200);
+}
+
 void *philo_routine(void* args) // lock spin
 {
 	t_philo_stat *philo_stat;
@@ -303,33 +333,11 @@ void *philo_routine(void* args) // lock spin
 
 		// 수면중인 경우 -> 수면 시간초과 확인
 		else
-		{
-			// 마지막으로 수면한 시간으로부터 time_to_sleep 만큼의 시간이 경과했을때
-			if (cmp_time - philo_stat->last_time_to_sleep >= philo_stat->philo_ref->time_to_sleep)
-			{
-				// 철학자의 상태를 변경
-				philo_stat->cur_state = THINK;
-				print_philo(philo_stat, cmp_time, "is thinking");
-			}
-		}
+			philo_sleep(philo_stat, cmp_time);
 		
-		long sleep_time = 0;
-		if (philo_stat->cur_state == EAT)
-			sleep_time = philo_stat->philo_ref->time_to_eat - (cmp_time - philo_stat->last_time_to_eat);
-		else if (philo_stat->cur_state == SLEEP)
-			sleep_time = philo_stat->philo_ref->time_to_sleep - (cmp_time - philo_stat->last_time_to_sleep);
-
-		long cmp_time2 = philo_stat->philo_ref->time_to_die - (cmp_time - philo_stat->last_time_to_eat);
-		if (sleep_time > cmp_time2)
-			sleep_time = cmp_time2;
-		
-		if (sleep_time / 2 > 200)
-		// if (sleep_time / 2 > philo_stat->philo_ref->number_of_philosophers / 10)
-			usleep (sleep_time / 2 * 1000);
-		else
-			usleep (200);
-			// usleep(philo_stat->philo_ref->number_of_philosophers / 10);
+		usleep(get_sleep_time(philo_stat, cmp_time));
 	}
+	return (0);
 }
 
 int philo_thread_create(t_philo_ref *philo_ref, t_philo_stat *philo_arr, int idx)
