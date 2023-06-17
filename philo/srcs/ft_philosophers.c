@@ -83,7 +83,7 @@ int take_fork(t_philo_stat *philo_stat, int is_right)
 	return (ret);
 }
 
-void *philo_routine2(void* args)
+void *philo_routine2(void* args) // only mutex
 {
 	t_philo_stat *philo_stat;
 	long cmp_time;
@@ -205,7 +205,7 @@ void *philo_routine2(void* args)
 	return (NULL);
 }
 
-void *philo_routine(void* args)
+void *philo_routine(void* args) // lock spin
 {
 	t_philo_stat *philo_stat;
 
@@ -221,12 +221,9 @@ void *philo_routine(void* args)
 	{
 		long cmp_time = my_gettimeofday();
 
-		// 모두 다 먹었는지 확인
-		if (is_all_philo_full(philo_stat->philo_ref))
-			return (NULL);
-
-		// 하나라도 종료된 스레드가 있는지 확인
-		if (get_dead_thread(philo_stat->philo_ref))
+		// 모두 다 먹었는지 or 하나라도 종료된 스레드가 있는지 확인
+		if (is_all_philo_full(philo_stat->philo_ref)\
+		|| get_dead_thread(philo_stat->philo_ref))
 			return (NULL);
 		
 		// 마지막으로 식사한 시간으로부터 생존가능한 시간이 지났는지 확인
@@ -260,6 +257,7 @@ void *philo_routine(void* args)
 			while (!get_dead_thread(philo_stat->philo_ref) && !take_fork(philo_stat, 1) && !is_philo_died(philo_stat, cmp_time))
 			{
 				usleep (200);
+				// usleep(philo_stat->philo_ref->number_of_philosophers);
 				cmp_time = my_gettimeofday();
 			}
 			
