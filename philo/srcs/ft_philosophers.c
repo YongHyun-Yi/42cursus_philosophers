@@ -12,6 +12,19 @@
 
 #include "ft_philosophers.h"
 
+void print_philo2(t_philo_stat *philo_stat, char *state)
+{
+	long print_time;
+
+	pthread_mutex_lock(&philo_stat->philo_ref->m_die);
+	if (!philo_stat->philo_ref->is_anyone_die)
+	{
+		print_time = my_gettimeofday() - philo_stat->philo_ref->start_time;
+		printf("%ld %d %s\n", print_time, philo_stat->philo_num, state);
+	}
+	pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
+}
+
 void print_philo(t_philo_stat *philo_stat, long time, char *state)
 {
 	long print_time;
@@ -233,6 +246,9 @@ void philo_sleep(t_philo_stat *philo_stat, long cmp_time)
 	{
 		philo_stat->cur_state = THINK;
 		print_philo(philo_stat, cmp_time, "is thinking");
+		// print_philo2(philo_stat, "is thinking");
+		if (philo_stat->philo_num % 2 == 0)
+			usleep(1000);
 	}
 }
 
@@ -254,6 +270,7 @@ void philo_eat(t_philo_stat *philo_stat, long cmp_time)
 		philo_stat->cur_state = SLEEP;
 		philo_stat->last_time_to_sleep = cmp_time;
 		print_philo(philo_stat, cmp_time, "is sleeping");
+		// print_philo2(philo_stat, "is sleeping");
 	}
 }
 
@@ -265,22 +282,23 @@ void philo_think(t_philo_stat *philo_stat, long cmp_time)
 	while (fork_idx < 2)
 	{
 		while (!get_dead_thread(philo_stat->philo_ref) && !take_fork(philo_stat, fork_idx))
-		{
 			usleep (200);
-			cmp_time = my_gettimeofday();
-		}
+		cmp_time = my_gettimeofday();
 		if (is_philo_died(philo_stat, cmp_time))
 		{
-			print_philo(philo_stat, cmp_time, "died");
+			// print_philo(philo_stat, cmp_time, "died");
+			print_philo2(philo_stat, "died");
 			set_dead_thread(philo_stat->philo_ref, 1);
 			return ;
 		}
-		print_philo(philo_stat, cmp_time, "has taken a fork");//1
+		print_philo(philo_stat, cmp_time, "has taken a fork");
+		// print_philo2(philo_stat, "has taken a fork");
 		fork_idx++;
 	}
 	philo_stat->cur_state = EAT;
 	philo_stat->last_time_to_eat = cmp_time;
 	print_philo(philo_stat, philo_stat->last_time_to_eat, "is eating");
+	// print_philo2(philo_stat, "is eating");
 }
 
 long get_sleep_time(t_philo_stat *philo_stat, long cmp_time)
@@ -329,7 +347,8 @@ void *philo_routine(void* args) // lock spin
 		// 마지막으로 식사한 시간으로부터 생존가능한 시간이 지났는지 확인
 		if (is_philo_died(philo_stat, cmp_time))
 		{
-			print_philo(philo_stat, cmp_time, "died");
+			// print_philo(philo_stat, cmp_time, "died");
+			print_philo2(philo_stat, "died");
 			set_dead_thread(philo_stat->philo_ref, 1);
 			return (NULL);
 		}
@@ -369,7 +388,7 @@ int philo_thread_create(t_philo_ref *philo_ref, t_philo_stat *philo_arr, int idx
 	philo_arr[idx].m_fork[rf_idx] = &philo_ref->m_fork_arr[rmf_idx];
 	philo_arr[idx].last_time_to_eat = philo_ref->start_time;
 	philo_arr[idx].philo_ref = philo_ref;
-	if (pthread_create(&philo_arr[idx].philo_thread, NULL, philo_routine2, (void *)&philo_arr[idx]) != 0)
+	if (pthread_create(&philo_arr[idx].philo_thread, NULL, philo_routine, (void *)&philo_arr[idx]) != 0)
 		return (0);
 	return (1);
 }
@@ -460,7 +479,7 @@ int main(int argc, char **argv)
 	while (cnt < philo_ref.number_of_philosophers)
 	{
 		pthread_join(philo_arr[cnt].philo_thread, NULL);
-		printf("cnt: %d\n", cnt);
+		// printf("cnt: %d\n", cnt);
 		cnt++;
 	}
 
