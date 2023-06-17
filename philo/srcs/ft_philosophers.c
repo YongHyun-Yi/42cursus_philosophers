@@ -247,7 +247,6 @@ void *philo_routine(void* args)
 				usleep (200);
 				// usleep(philo_stat->philo_ref->number_of_philosophers);
 				cmp_time = my_gettimeofday();
-				// printf("philo: %d\n", philo_stat->philo_num);
 			}
 			
 			if (is_philo_died(philo_stat, cmp_time))
@@ -262,7 +261,6 @@ void *philo_routine(void* args)
 			{
 				usleep (200);
 				cmp_time = my_gettimeofday();
-				printf("philo: %d\n", philo_stat->philo_num);
 			}
 			
 			if (is_philo_died(philo_stat, cmp_time))
@@ -353,7 +351,7 @@ int philo_thread_create(t_philo_ref *philo_ref, t_philo_stat *philo_arr, int idx
 
 	lf_idx = (idx % 2 == 1);
 	rf_idx = (idx % 2 == 0);
-	rmf_idx = (idx + 1) * idx < philo_ref->number_of_philosophers - 1;
+	rmf_idx = (idx + 1) * (idx < philo_ref->number_of_philosophers - 1);
 	philo_arr[idx].philo_num = idx;
 	philo_arr[idx].fork[lf_idx] = &philo_ref->fork_arr[idx];
 	philo_arr[idx].m_fork[lf_idx] = &philo_ref->m_fork_arr[idx];
