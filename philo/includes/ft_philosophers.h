@@ -30,6 +30,7 @@ typedef struct s_philo_ref
 	int number_of_times_must_eat;
 	int number_of_full_philosophers;
 	int is_anyone_die;
+	pthread_mutex_t m_start;
 	pthread_mutex_t m_die;
 	pthread_mutex_t m_full_eat;
 	pthread_mutex_t *m_fork_arr;
@@ -64,6 +65,8 @@ void	ft_putnbr_fd(int n, int fd);
 void	ft_putchar_fd(char c, int fd);
 long my_gettimeofday(void);
 int parse_philo(t_philo_ref *philo_ref, int argc, char **argv);
+
+long get_sleep_time(t_philo_stat *philo_stat, long cmp_time);
 
 /*
 

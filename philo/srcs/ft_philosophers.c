@@ -100,6 +100,9 @@ void *philo_routine2(void* args) // only mutex
 
 	philo_stat = (t_philo_stat *)args;
 
+	// pthread_mutex_lock(&philo_stat->philo_ref->m_start);
+	// pthread_mutex_unlock(&philo_stat->philo_ref->m_start);
+
 	if (philo_stat->philo_num % 2)
 	{
 		usleep(10 * philo_stat->philo_ref->number_of_philosophers);
@@ -112,13 +115,21 @@ void *philo_routine2(void* args) // only mutex
 			return (NULL);
 		
 		if (get_dead_thread(philo_stat->philo_ref))
+		{
+			pthread_mutex_unlock(philo_stat->m_fork[0]);
+			pthread_mutex_unlock(philo_stat->m_fork[1]);
+			// eat 상태에서 이 조건문에 걸리면 unlock 을 하지않고 종료되는게 문제였음...
+			// think 는 매번 종료조건을 확인하고 unlock 을 하지만 eat 에서는 다 먹었을때만 unlock 함
+			// 어차피 종료조건은 매 루프 초반부에서 확인한다는 전제가 있었기 때문
+			// 근데 그 종료조건문에서 unlock 은 빼먹었음 ㅋㅋ;
 			return (NULL);
+		}
 		
 		cmp_time = my_gettimeofday();
 		
 		if (is_philo_died(philo_stat, cmp_time))
 		{
-			print_philo(philo_stat, cmp_time, "died1");
+			print_philo(philo_stat, cmp_time, "died");
 			set_dead_thread(philo_stat->philo_ref, 1);
 		}
 		
@@ -132,7 +143,7 @@ void *philo_routine2(void* args) // only mutex
 
 			if (is_philo_died(philo_stat, my_gettimeofday()))
 			{
-				print_philo(philo_stat, my_gettimeofday(), "died1");
+				print_philo(philo_stat, my_gettimeofday(), "died");
 				set_dead_thread(philo_stat->philo_ref, 1);
 				pthread_mutex_unlock(philo_stat->m_fork[0]);
 				// printf("down fork1: %d\n", philo_stat->philo_num);
@@ -147,7 +158,7 @@ void *philo_routine2(void* args) // only mutex
 
 			if (is_philo_died(philo_stat, my_gettimeofday()))
 			{
-				print_philo(philo_stat, my_gettimeofday(), "died2");
+				print_philo(philo_stat, my_gettimeofday(), "died");
 				set_dead_thread(philo_stat->philo_ref, 1);
 				pthread_mutex_unlock(philo_stat->m_fork[0]);
 				// printf("down fork1: %d\n", philo_stat->philo_num);
@@ -194,22 +205,23 @@ void *philo_routine2(void* args) // only mutex
 			}
 		}
 
-		long sleep_time = 0;
-		if (philo_stat->cur_state == EAT)
-			sleep_time = philo_stat->philo_ref->time_to_eat - (cmp_time - philo_stat->last_time_to_eat);
-		else if (philo_stat->cur_state == SLEEP)
-			sleep_time = philo_stat->philo_ref->time_to_sleep - (cmp_time - philo_stat->last_time_to_sleep);
-		else if (philo_stat->cur_state == SLEEP)
-			sleep_time = philo_stat->philo_ref->time_to_die - (cmp_time - philo_stat->last_time_to_eat);
+		// long sleep_time = 0;
+		// if (philo_stat->cur_state == EAT)
+		// 	sleep_time = philo_stat->philo_ref->time_to_eat - (cmp_time - philo_stat->last_time_to_eat);
+		// else if (philo_stat->cur_state == SLEEP)
+		// 	sleep_time = philo_stat->philo_ref->time_to_sleep - (cmp_time - philo_stat->last_time_to_sleep);
+		// else if (philo_stat->cur_state == SLEEP)
+		// 	sleep_time = philo_stat->philo_ref->time_to_die - (cmp_time - philo_stat->last_time_to_eat);
 
-		long cmp_time2 = philo_stat->philo_ref->time_to_die - (cmp_time - philo_stat->last_time_to_eat);
-		if (sleep_time > cmp_time2)
-			sleep_time = cmp_time2;
+		// long cmp_time2 = philo_stat->philo_ref->time_to_die - (cmp_time - philo_stat->last_time_to_eat);
+		// if (sleep_time > cmp_time2)
+		// 	sleep_time = cmp_time2;
 		
-		if (sleep_time / 2 > 20)
-			usleep (sleep_time / 2);
-		else
-			usleep (20);
+		// if (sleep_time / 2 > 20)
+		// 	usleep (sleep_time / 2);
+		// else
+		// 	usleep (20);
+		usleep(get_sleep_time(philo_stat, cmp_time));
 	}
 	
 	return (NULL);
@@ -295,6 +307,7 @@ long get_sleep_time(t_philo_stat *philo_stat, long cmp_time)
 void *philo_routine(void* args) // lock spin
 {
 	t_philo_stat *philo_stat;
+	long cmp_time;
 
 	philo_stat = (t_philo_stat *)args;
 	
@@ -306,7 +319,7 @@ void *philo_routine(void* args) // lock spin
 	
 	while (1)
 	{
-		long cmp_time = my_gettimeofday();
+		cmp_time = my_gettimeofday();
 
 		// 모두 다 먹었는지 or 하나라도 종료된 스레드가 있는지 확인
 		if (is_all_philo_full(philo_stat->philo_ref)\
@@ -356,7 +369,7 @@ int philo_thread_create(t_philo_ref *philo_ref, t_philo_stat *philo_arr, int idx
 	philo_arr[idx].m_fork[rf_idx] = &philo_ref->m_fork_arr[rmf_idx];
 	philo_arr[idx].last_time_to_eat = philo_ref->start_time;
 	philo_arr[idx].philo_ref = philo_ref;
-	if (pthread_create(&philo_arr[idx].philo_thread, NULL, philo_routine, (void *)&philo_arr[idx]) != 0)
+	if (pthread_create(&philo_arr[idx].philo_thread, NULL, philo_routine2, (void *)&philo_arr[idx]) != 0)
 		return (0);
 	return (1);
 }
@@ -406,6 +419,8 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 	if (!m_fork_init(philo_ref) || !philo_arr_init(philo_ref, philo_arr)\
 	|| !fork_arr_init(philo_ref))
 		return (0);
+	pthread_mutex_init(&philo_ref->m_start, NULL);//
+	pthread_mutex_lock(&philo_ref->m_start);//
 	cnt = 0;
 	while (cnt < philo_ref->number_of_philosophers / 2 + philo_ref->number_of_philosophers % 2)
 	{
@@ -418,6 +433,7 @@ int init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr)
 		if (!philo_thread_create(philo_ref, *philo_arr, cnt++ * 2 + 1))
 			return (0);
 	}
+	pthread_mutex_unlock(&philo_ref->m_start);//
 	return (1);
 }
 
@@ -444,6 +460,7 @@ int main(int argc, char **argv)
 	while (cnt < philo_ref.number_of_philosophers)
 	{
 		pthread_join(philo_arr[cnt].philo_thread, NULL);
+		printf("cnt: %d\n", cnt);
 		cnt++;
 	}
 
