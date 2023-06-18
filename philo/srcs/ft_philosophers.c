@@ -252,7 +252,13 @@ void philo_sleep(t_philo_stat *philo_stat, long cmp_time)
 		philo_stat->cur_state = THINK;
 		print_philo2(philo_stat, "is thinking");
 		if (philo_stat->philo_num % 2 == 0)
+		{
+			// printf("time to die: %ld\n", philo_stat->philo_ref->time_to_die);
+			// printf("spent time: %ld\n", my_gettimeofday() - philo_stat->last_time_to_eat);
+			// printf("usleep: %ld\n", (philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat)));
+			// usleep((philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat)) / 2);
 			usleep(200);
+		}
 	}
 }
 
@@ -315,10 +321,10 @@ long get_sleep_time(t_philo_stat *philo_stat, long cmp_time)
 	if (sleep_time > cmp_time2)
 		sleep_time = cmp_time2;
 	
-	if (sleep_time / 2 > 200)
-		return (sleep_time / 2 * 1000);
+	if (sleep_time / 2 > 20)
+		return (sleep_time / 2);
 	else
-		return (200);
+		return (20);
 }
 
 // lock spin
