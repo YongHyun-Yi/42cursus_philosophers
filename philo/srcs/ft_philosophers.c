@@ -251,14 +251,18 @@ void philo_sleep(t_philo_stat *philo_stat, long cmp_time)
 	{
 		philo_stat->cur_state = THINK;
 		print_philo2(philo_stat, "is thinking");
-		if (philo_stat->philo_num % 2 == 0)
-		{
+		// if (philo_stat->philo_num % 2 == 0)
+		// {
 			// printf("time to die: %ld\n", philo_stat->philo_ref->time_to_die);
 			// printf("spent time: %ld\n", my_gettimeofday() - philo_stat->last_time_to_eat);
 			// printf("usleep: %ld\n", (philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat)));
+			// usleep((philo_stat->philo_ref->time_to_die - philo_stat->philo_ref->time_to_eat + philo_stat->philo_ref->time_to_sleep) / 2);
 			// usleep((philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat)) / 2);
-			usleep(200);
-		}
+			// usleep(200);
+			// usleep(400);
+		// }
+		usleep (200);
+		// usleep(300 * 1000);
 	}
 }
 
@@ -298,6 +302,8 @@ void philo_think(t_philo_stat *philo_stat, long cmp_time)
 			set_dead_thread(philo_stat->philo_ref, 1);
 			return ;
 		}
+		printf("left fork: %d\n", philo_stat->l_fork);
+		printf("right fork: %d\n", philo_stat->r_fork);
 		print_philo2(philo_stat, "has taken a fork");
 		fork_idx++;
 	}
@@ -318,7 +324,7 @@ long get_sleep_time(t_philo_stat *philo_stat, long cmp_time)
 		sleep_time = philo_stat->philo_ref->time_to_sleep - (my_gettimeofday() - philo_stat->last_time_to_sleep);
 
 	cmp_time2 = philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat);
-	if (sleep_time > cmp_time2)
+	if (sleep_time == 0 || sleep_time > cmp_time2)
 		sleep_time = cmp_time2;
 	
 	if (sleep_time / 2 > 20)
@@ -335,7 +341,7 @@ void *philo_routine(void* args)
 
 	philo_stat = (t_philo_stat *)args;
 	
-	if (philo_stat->philo_num % 2)
+	if (philo_stat->philo_num % 2 == 0)
 	{
 		usleep(10 * philo_stat->philo_ref->number_of_philosophers);
 		print_philo2(philo_stat, "is thinking");
@@ -387,6 +393,20 @@ int philo_thread_create(t_philo_ref *philo_ref, t_philo_stat *philo_arr, int idx
 	philo_arr[idx].philo_num = idx;
 	philo_arr[idx].fork[lf_idx] = &philo_ref->fork_arr[idx];
 	philo_arr[idx].m_fork[lf_idx] = &philo_ref->m_fork_arr[idx];
+
+	if (philo_arr[idx].philo_num % 2)
+	{
+		philo_arr[idx].l_fork = philo_arr[idx].philo_num + 1;
+		philo_arr[idx].r_fork = philo_arr[idx].philo_num;
+	}
+	else
+	{
+		philo_arr[idx].l_fork = philo_arr[idx].philo_num;
+		philo_arr[idx].r_fork = philo_arr[idx].philo_num + 1;
+	}
+	if (idx == philo_ref->number_of_philosophers - 1)
+		philo_arr[idx].r_fork = 0;
+
 	philo_arr[idx].fork[rf_idx] = &philo_ref->fork_arr[rmf_idx];
 	philo_arr[idx].m_fork[rf_idx] = &philo_ref->m_fork_arr[rmf_idx];
 	philo_arr[idx].last_time_to_eat = philo_ref->start_time;
