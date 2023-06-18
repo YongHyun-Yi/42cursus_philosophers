@@ -247,11 +247,9 @@ void *philo_routine2(void* args) // only mutex
 
 void philo_sleep(t_philo_stat *philo_stat, long cmp_time)
 {
-	// if (cmp_time - philo_stat->last_time_to_sleep >= philo_stat->philo_ref->time_to_sleep)
 	if (my_gettimeofday() - philo_stat->last_time_to_sleep >= philo_stat->philo_ref->time_to_sleep)
 	{
 		philo_stat->cur_state = THINK;
-		// print_philo(philo_stat, cmp_time, "is thinking");
 		print_philo2(philo_stat, "is thinking");
 		if (philo_stat->philo_num % 2 == 0)
 			usleep(200);
@@ -260,7 +258,6 @@ void philo_sleep(t_philo_stat *philo_stat, long cmp_time)
 
 void philo_eat(t_philo_stat *philo_stat, long cmp_time)
 {
-	// if (cmp_time - philo_stat->last_time_to_eat >= philo_stat->philo_ref->time_to_eat)
 	if (my_gettimeofday() - philo_stat->last_time_to_eat >= philo_stat->philo_ref->time_to_eat)
 	{
 		down_fork(philo_stat);
@@ -275,9 +272,7 @@ void philo_eat(t_philo_stat *philo_stat, long cmp_time)
 			}
 		}
 		philo_stat->cur_state = SLEEP;
-		// philo_stat->last_time_to_sleep = cmp_time;
 		philo_stat->last_time_to_sleep = my_gettimeofday();
-		// print_philo(philo_stat, cmp_time, "is sleeping");
 		print_philo2(philo_stat, "is sleeping");
 	}
 }
@@ -291,23 +286,17 @@ void philo_think(t_philo_stat *philo_stat, long cmp_time)
 	{
 		while (!get_dead_thread(philo_stat->philo_ref) && !take_fork(philo_stat, fork_idx))
 			usleep (200);
-		// cmp_time = my_gettimeofday();
-		// if (is_philo_died(philo_stat, cmp_time))
 		if (is_philo_died2(philo_stat))
 		{
-			// print_philo(philo_stat, cmp_time, "died");
 			print_philo2(philo_stat, "died");
 			set_dead_thread(philo_stat->philo_ref, 1);
 			return ;
 		}
-		// print_philo(philo_stat, cmp_time, "has taken a fork");
 		print_philo2(philo_stat, "has taken a fork");
 		fork_idx++;
 	}
 	philo_stat->cur_state = EAT;
-	// philo_stat->last_time_to_eat = cmp_time;
 	philo_stat->last_time_to_eat = my_gettimeofday();
-	// print_philo(philo_stat, philo_stat->last_time_to_eat, "is eating");
 	print_philo2(philo_stat, "is eating");
 }
 
@@ -332,7 +321,8 @@ long get_sleep_time(t_philo_stat *philo_stat, long cmp_time)
 		return (200);
 }
 
-void *philo_routine(void* args) // lock spin
+// lock spin
+void *philo_routine(void* args)
 {
 	t_philo_stat *philo_stat;
 	long cmp_time;
@@ -342,24 +332,19 @@ void *philo_routine(void* args) // lock spin
 	if (philo_stat->philo_num % 2)
 	{
 		usleep(10 * philo_stat->philo_ref->number_of_philosophers);
-		// print_philo(philo_stat, my_gettimeofday(), "is thinking");
 		print_philo2(philo_stat, "is thinking");
 	}
 	
 	while (1)
 	{
-		// cmp_time = my_gettimeofday();
-
 		// 모두 다 먹었는지 or 하나라도 종료된 스레드가 있는지 확인
 		if (is_all_philo_full(philo_stat->philo_ref)\
 		|| get_dead_thread(philo_stat->philo_ref))
 			return (NULL);
 		
 		// 마지막으로 식사한 시간으로부터 생존가능한 시간이 지났는지 확인
-		// if (is_philo_died(philo_stat, cmp_time))
 		if (is_philo_died2(philo_stat))
 		{
-			// print_philo(philo_stat, cmp_time, "died");
 			print_philo2(philo_stat, "died");
 			set_dead_thread(philo_stat->philo_ref, 1);
 			return (NULL);
@@ -369,7 +354,6 @@ void *philo_routine(void* args) // lock spin
 
 		// 생각중인경우 -> 식사 가능여부를 확인
 		if (philo_stat->cur_state == THINK)
-			// philo_think(philo_stat, cmp_time);
 			philo_think(philo_stat, 0);
 
 		// 식사중인 경우 -> 식사 시간초과 확인
