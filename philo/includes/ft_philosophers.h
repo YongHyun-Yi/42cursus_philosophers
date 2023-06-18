@@ -44,8 +44,6 @@ typedef struct s_philo_stat
 	pthread_t philo_thread;
 	int philo_num;
 	int *fork[2];
-	int l_fork;
-	int r_fork;
 	// int fork[2];
 	pthread_mutex_t *m_fork[2];
 	int cur_state;

@@ -261,8 +261,9 @@ void philo_sleep(t_philo_stat *philo_stat, long cmp_time)
 			// usleep(200);
 			// usleep(400);
 		// }
-		usleep (200);
+		// usleep (200);
 		// usleep(300 * 1000);
+		usleep ((philo_stat->philo_ref->time_to_eat - philo_stat->philo_ref->time_to_sleep + 100) * 1000);
 	}
 }
 
@@ -302,8 +303,6 @@ void philo_think(t_philo_stat *philo_stat, long cmp_time)
 			set_dead_thread(philo_stat->philo_ref, 1);
 			return ;
 		}
-		printf("left fork: %d\n", philo_stat->l_fork);
-		printf("right fork: %d\n", philo_stat->r_fork);
 		print_philo2(philo_stat, "has taken a fork");
 		fork_idx++;
 	}
@@ -393,20 +392,6 @@ int philo_thread_create(t_philo_ref *philo_ref, t_philo_stat *philo_arr, int idx
 	philo_arr[idx].philo_num = idx;
 	philo_arr[idx].fork[lf_idx] = &philo_ref->fork_arr[idx];
 	philo_arr[idx].m_fork[lf_idx] = &philo_ref->m_fork_arr[idx];
-
-	if (philo_arr[idx].philo_num % 2)
-	{
-		philo_arr[idx].l_fork = philo_arr[idx].philo_num + 1;
-		philo_arr[idx].r_fork = philo_arr[idx].philo_num;
-	}
-	else
-	{
-		philo_arr[idx].l_fork = philo_arr[idx].philo_num;
-		philo_arr[idx].r_fork = philo_arr[idx].philo_num + 1;
-	}
-	if (idx == philo_ref->number_of_philosophers - 1)
-		philo_arr[idx].r_fork = 0;
-
 	philo_arr[idx].fork[rf_idx] = &philo_ref->fork_arr[rmf_idx];
 	philo_arr[idx].m_fork[rf_idx] = &philo_ref->m_fork_arr[rmf_idx];
 	philo_arr[idx].last_time_to_eat = philo_ref->start_time;
