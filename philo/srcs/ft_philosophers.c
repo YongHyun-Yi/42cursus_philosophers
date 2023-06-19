@@ -263,7 +263,8 @@ void philo_sleep(t_philo_stat *philo_stat, long cmp_time)
 		// }
 		// usleep (200);
 		// usleep(300 * 1000);
-		usleep ((philo_stat->philo_ref->time_to_eat - philo_stat->philo_ref->time_to_sleep + 100) * 1000);
+		if (philo_stat->philo_ref->number_of_philosophers % 2)
+			usleep ((philo_stat->philo_ref->time_to_eat - philo_stat->philo_ref->time_to_sleep + 100) * 1000);
 	}
 }
 
@@ -327,9 +328,9 @@ long get_sleep_time(t_philo_stat *philo_stat, long cmp_time)
 		sleep_time = cmp_time2;
 	
 	if (sleep_time / 2 > 20)
-		return (sleep_time / 2);
+		return (sleep_time / 2 * 100);
 	else
-		return (20);
+		return (20 * 100);
 }
 
 // lock spin
@@ -343,7 +344,7 @@ void *philo_routine(void* args)
 	if (philo_stat->philo_num % 2 == 0)
 	{
 		usleep(10 * philo_stat->philo_ref->number_of_philosophers);
-		print_philo2(philo_stat, "is thinking");
+		// print_philo2(philo_stat, "is thinking");
 	}
 	
 	while (1)
