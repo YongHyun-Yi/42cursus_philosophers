@@ -6,7 +6,7 @@
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/02 12:30:01 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/06/02 12:45:15 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/06/20 12:40:14 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,8 @@ int		ft_atoi(const char *str);
 void	ft_putnbr_fd(int n, int fd);
 void	ft_putchar_fd(char c, int fd);
 
+long	my_gettimeofday(void);
+void	print_philo(t_philo_stat *philo_stat, char *state);
 long	get_sleep_time(t_philo_stat *philo_stat);
 
 int		parse_philo(t_philo_ref *philo_ref, int argc, char **argv);

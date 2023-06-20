@@ -6,7 +6,7 @@
 #    By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/06/02 12:29:39 by yonghyle          #+#    #+#              #
-#    Updated: 2023/06/02 12:38:12 by yonghyle         ###   ########.fr        #
+#    Updated: 2023/06/20 12:39:32 by yonghyle         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,7 +27,7 @@ LINE_CLEAR  =   "\x1b[1A\x1b[M"
 
 CC = cc
 
-# CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror
 
 CFLAGS =
 
@@ -37,21 +37,13 @@ RM = rm -rf
 
 NAME = philo
 
-BONUS_NAME = make_bonus
-
 #-------------------------------------------
 
-# MANDATORY_SRCS = $(addprefix srcs/, \
+MANDATORY_SRCS = $(addprefix srcs/, \
+	ft_atoi.c               ft_philosophers.c       ft_putnbr.c             init_philo.c            state_functions.c \
+	ft_parse_philo.c        ft_putchar.c            ft_strisnum.c           philo_routine.c \
 )
-MANDATORY_SRCS = $(wildcard srcs/*.c)
 MANDATORY_OBJS = $(MANDATORY_SRCS:.c=.o)
-
-#-------------------------------------------
-
-# BONUS_SRCS = $(addprefix bonus_srcs/,\
-)
-BONUS_SRCS = $(wildcard bonus_srcs/*.c)
-BONUS_OBJS = $(BONUS_SRCS:.c=.o)
 
 #-------------------------------------------
 
@@ -67,13 +59,9 @@ $(NAME): $(MANDATORY_OBJS)
 		@echo $(YELLOW)"                     PHILOSOPHER DONE"$(EOC)
 		@echo $(GREEN)"\n==========================================================\n"$(EOC)
 
-bonus: $(BONUS_NAME)
-
-$(BONUS_NAME): $(BONUS_OBJS)
-		@$(CC) $(CFLAGS) $^ -o $(NAME)
-		@touch $@
+bonus:
 		@echo $(GREEN)"\n==========================================================\n"$(EOC)
-		@echo $(YELLOW)"                  PHILOSOPHER BONUS DONE"$(EOC)
+		@echo $(YELLOW)"                    THERE ARE NO BONUS"$(EOC)
 		@echo $(GREEN)"\n==========================================================\n"$(EOC)
 
 clean:
@@ -84,7 +72,7 @@ clean:
 
 fclean:
 		@make --no-print-directory clean
-		@$(RM) $(NAME) $(BONUS_NAME)
+		@$(RM) $(NAME)
 		@echo $(GREEN)"\n==========================================================\n"$(EOC)
 		@echo $(YELLOW)"                     PHILOSOPHER FCLEAN"
 		@echo $(GREEN)"\n==========================================================\n"$(EOC)
