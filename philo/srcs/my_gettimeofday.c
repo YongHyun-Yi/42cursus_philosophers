@@ -12,10 +12,10 @@
 
 #include "ft_philosophers.h"
 
-long my_gettimeofday(void)
+long	my_gettimeofday(void)
 {
 	struct timeval	tv;
-	long ret;
+	long			ret;
 
 	gettimeofday(&tv, NULL);
 	ret = tv.tv_sec * 1000 + tv.tv_usec / 1000;
