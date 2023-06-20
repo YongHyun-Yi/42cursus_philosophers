@@ -94,6 +94,7 @@ void down_fork(t_philo_stat *philo_stat)
 	pthread_mutex_lock(philo_stat->m_fork[1]);
 	*philo_stat->fork[1] = 0;
 	pthread_mutex_unlock(philo_stat->m_fork[1]);
+	philo_stat->fork_idx = 0;
 }
 
 int take_fork(t_philo_stat *philo_stat, int is_right)
@@ -292,22 +293,25 @@ void philo_eat(t_philo_stat *philo_stat, long cmp_time)
 
 void philo_think(t_philo_stat *philo_stat, long cmp_time)
 {
-	int fork_idx;
+	// int fork_idx;
 
-	fork_idx = 0;
-	while (fork_idx < 2)
+	// fork_idx = 0;
+	while (philo_stat->fork_idx < 2)
 	{
-		while (!get_dead_thread(philo_stat->philo_ref) && !take_fork(philo_stat, fork_idx))
-			usleep (200);
+		// while (!get_dead_thread(philo_stat->philo_ref) && !take_fork(philo_stat, fork_idx))
+			// usleep (200);
+		if (!take_fork(philo_stat, philo_stat->fork_idx))
+			return;
 
-		if (is_philo_died2(philo_stat))
-		{
-			print_philo2(philo_stat, "died");
-			set_dead_thread(philo_stat->philo_ref, 1);
-			return ;
-		}
+		// if (is_philo_died2(philo_stat))
+		// {
+		// 	print_philo2(philo_stat, "died");
+		// 	set_dead_thread(philo_stat->philo_ref, 1);
+		// 	return ;
+		// }
 		print_philo2(philo_stat, "has taken a fork");
-		fork_idx++;
+		// fork_idx++;
+		philo_stat->fork_idx++;
 	}
 	philo_stat->cur_state = EAT;
 	philo_stat->last_time_to_eat = my_gettimeofday();
@@ -320,14 +324,16 @@ long get_sleep_time(t_philo_stat *philo_stat, long cmp_time)
 	long cmp_time2;
 
 	sleep_time = 0;
+	if (philo_stat->cur_state == THINK)
+		return (200);
 	if (philo_stat->cur_state == EAT)
 		sleep_time = philo_stat->philo_ref->time_to_eat - (my_gettimeofday() - philo_stat->last_time_to_eat);
 	else if (philo_stat->cur_state == SLEEP)
 		sleep_time = philo_stat->philo_ref->time_to_sleep - (my_gettimeofday() - philo_stat->last_time_to_sleep);
 
-	cmp_time2 = philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat);
-	if (sleep_time == 0 || sleep_time > cmp_time2)
-		sleep_time = cmp_time2;
+	// cmp_time2 = philo_stat->philo_ref->time_to_die - (my_gettimeofday() - philo_stat->last_time_to_eat);
+	// if (sleep_time == 0 || sleep_time > cmp_time2)
+	// 	sleep_time = cmp_time2;
 	
 	if (sleep_time / 2 > 20)
 		return (sleep_time / 2 * 100);
@@ -343,7 +349,7 @@ void *philo_routine(void* args)
 
 	philo_stat = (t_philo_stat *)args;
 	
-	if (philo_stat->philo_num % 2 == 0)
+	if (philo_stat->philo_num % 2)
 	{
 		usleep(10 * philo_stat->philo_ref->number_of_philosophers);
 		// print_philo2(philo_stat, "is thinking");
