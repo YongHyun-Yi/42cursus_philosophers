@@ -63,10 +63,15 @@ int		ft_strisnum(char *str);
 int		ft_atoi(const char *str);
 void	ft_putnbr_fd(int n, int fd);
 void	ft_putchar_fd(char c, int fd);
-long	my_gettimeofday(void);
-int		parse_philo(t_philo_ref *philo_ref, int argc, char **argv);
 
 long	get_sleep_time(t_philo_stat *philo_stat);
+
+int		parse_philo(t_philo_ref *philo_ref, int argc, char **argv);
+
+int		init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr);
+
+void	*philo_routine(void *args);
+
 void	philo_think(t_philo_stat *philo_stat);
 void	philo_eat(t_philo_stat *philo_stat);
 void	philo_sleep(t_philo_stat *philo_stat);
