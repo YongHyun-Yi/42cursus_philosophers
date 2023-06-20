@@ -264,7 +264,8 @@ void philo_sleep(t_philo_stat *philo_stat, long cmp_time)
 		// usleep (200);
 		// usleep(300 * 1000);
 		if (philo_stat->philo_ref->number_of_philosophers % 2)
-			usleep ((philo_stat->philo_ref->time_to_eat - philo_stat->philo_ref->time_to_sleep + 100) * 1000);
+			// usleep ((philo_stat->philo_ref->time_to_eat - philo_stat->philo_ref->time_to_sleep + 100) * 100);
+			usleep ((philo_stat->philo_ref->time_to_eat - philo_stat->philo_ref->time_to_sleep) * 1000);
 	}
 }
 
@@ -298,6 +299,7 @@ void philo_think(t_philo_stat *philo_stat, long cmp_time)
 	{
 		while (!get_dead_thread(philo_stat->philo_ref) && !take_fork(philo_stat, fork_idx))
 			usleep (200);
+
 		if (is_philo_died2(philo_stat))
 		{
 			print_philo2(philo_stat, "died");
