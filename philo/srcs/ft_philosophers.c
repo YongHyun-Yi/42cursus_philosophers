@@ -6,7 +6,7 @@
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/02 12:29:33 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/06/20 12:27:44 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/06/20 14:58:09 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ void	print_philo(t_philo_stat *philo_stat, char *state)
 	if (!philo_stat->philo_ref->is_anyone_die)
 	{
 		print_time = my_gettimeofday() - philo_stat->philo_ref->start_time;
-		printf("%ld %d %s\n", print_time, philo_stat->philo_num, state);
+		printf("%ld %d %s\n", print_time, philo_stat->philo_num + 1, state);
 	}
 	pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
 }
