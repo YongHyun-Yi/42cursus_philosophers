@@ -6,7 +6,7 @@
 #    By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/06/02 12:29:39 by yonghyle          #+#    #+#              #
-#    Updated: 2023/06/20 12:39:32 by yonghyle         ###   ########.fr        #
+#    Updated: 2023/06/22 10:13:08 by yonghyle         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -47,6 +47,13 @@ MANDATORY_OBJS = $(MANDATORY_SRCS:.c=.o)
 
 #-------------------------------------------
 
+# BONUS_SRCS = $(addprefix bonus_srcs/,\
+)
+BONUS_SRCS = $(wildcard bonus_srcs/*.c)
+BONUS_OBJS = $(BONUS_SRCS:.c=.o)
+
+#-------------------------------------------
+
 all: $(NAME)
 
 %.o: %.c
@@ -59,9 +66,13 @@ $(NAME): $(MANDATORY_OBJS)
 		@echo $(YELLOW)"                     PHILOSOPHER DONE"$(EOC)
 		@echo $(GREEN)"\n==========================================================\n"$(EOC)
 
-bonus:
+bonus: $(BONUS_NAME)
+
+$(BONUS_NAME): $(BONUS_OBJS)
+		@$(CC) $(CFLAGS) $^ -o $(NAME)
+		@touch $@
 		@echo $(GREEN)"\n==========================================================\n"$(EOC)
-		@echo $(YELLOW)"                    THERE ARE NO BONUS"$(EOC)
+		@echo $(YELLOW)"                  PHILOSOPHER BONUS DONE"$(EOC)
 		@echo $(GREEN)"\n==========================================================\n"$(EOC)
 
 clean:
