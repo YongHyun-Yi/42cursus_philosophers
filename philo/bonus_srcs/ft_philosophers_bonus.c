@@ -93,9 +93,31 @@ int main()
 {
 	pid_t my_pid;
 	printf("first pid: %d\n", getpid());
-	my_pid = fork();
-	if (my_pid)
-		printf("I'm parent(pid: %d) and fork return to me child pid: %d\n", getpid(), my_pid);
+
+	// my_pid = fork();
+	// if (my_pid)
+	// 	printf("I'm parent(pid: %d) and fork return to me child pid: %d\n", getpid(), my_pid);
+	// else
+	// 	printf("I'm child(pid: %d) and fork return to me pid: %d\n", getpid(), my_pid);
+	
+	printf("\n------------------------\n\n");
+	
+	int i = 0;
+	while (i < 5)
+	{
+		my_pid = fork();
+		printf("i: %d\n", i);
+		i++;
+	}
+	
+	if (my_pid == 0)
+	{
+		printf("I'm child(pid: %d\n)", getpid());
+		sleep(i);
+	}
 	else
-		printf("I'm child(pid: %d) and fork return to me pid: %d\n", getpid(), my_pid);
+	{
+		printf("I'm parent(pid: %d) wait all child process\n", getpid());
+		waitpid(-1, 0, 0);
+	}
 }
