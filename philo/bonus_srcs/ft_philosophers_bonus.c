@@ -92,6 +92,7 @@ static void	print_err_msg(void)
 int main()
 {
 	pid_t my_pid;
+	sem_t *sem_forks;
 	printf("first pid: %d\n", getpid());
 
 	// my_pid = fork();
@@ -101,23 +102,30 @@ int main()
 	// 	printf("I'm child(pid: %d) and fork return to me pid: %d\n", getpid(), my_pid);
 	
 	printf("\n------------------------\n\n");
+
+	sem_forks = sem_open("sem_forks", O_CREAT, 0, 1);
 	
 	int i = 0;
 	while (i < 5)
 	{
 		my_pid = fork();
+		if (my_pid == 0)
+		{
+			printf("I'm child(pid: %d\n)", getpid());
+			sem_wait(sem_forks);
+			sleep(3);
+			printf("pid: %d, sleep done!\n", getpid());
+			sem_post(sem_forks);
+			exit(0);
+		}
 		printf("i: %d\n", i);
 		i++;
 	}
 	
-	if (my_pid == 0)
+	while (i)
 	{
-		printf("I'm child(pid: %d\n)", getpid());
-		sleep(i);
-	}
-	else
-	{
-		printf("I'm parent(pid: %d) wait all child process\n", getpid());
 		waitpid(-1, 0, 0);
+		i--;
 	}
+	printf("I'm parent(pid: %d) wait all child process\n", getpid());
 }
