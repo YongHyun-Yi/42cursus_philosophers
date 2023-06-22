@@ -29,9 +29,9 @@ t_philo_stat *philo_arr, int idx)
 	philo_arr[idx].m_fork[rf_idx] = &philo_ref->m_fork_arr[rmf_idx];
 	philo_arr[idx].last_time_to_eat = philo_ref->start_time;
 	philo_arr[idx].philo_ref = philo_ref;
-	if (pthread_create(&philo_arr[idx].philo_thread, NULL, philo_routine, \
-	(void *)&philo_arr[idx]) != 0)
-		return (0);
+	// if (pthread_create(&philo_arr[idx].philo_thread, NULL, philo_routine, \
+	// (void *)&philo_arr[idx]) != 0)
+	// 	return (0);
 	return (1);
 }
 

@@ -20,6 +20,7 @@
 # include <sys/time.h>
 # include <pthread.h>
 # include <limits.h>
+# include <semaphore.h>
 
 typedef struct s_philo_stat
 {

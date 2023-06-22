@@ -64,27 +64,38 @@ static void	print_err_msg(void)
 	printf("Must Eat ]⌟\033[0;0m\n");
 }
 
-int	main(int argc, char **argv)
-{
-	t_philo_ref		philo_ref;
-	t_philo_stat	*philo_arr;
-	int				cnt;
+// int	main(int argc, char **argv)
+// {
+// 	t_philo_ref		philo_ref;
+// 	t_philo_stat	*philo_arr;
+// 	int				cnt;
 
-	memset(&philo_ref, 0, sizeof(t_philo_ref));
-	if (!parse_philo(&philo_ref, argc, argv))
-	{
-		print_err_msg();
-		return (0);
-	}
-	if (philo_ref.number_of_times_must_eat == 0)
-		return (0);
-	if (!init_philo(&philo_ref, &philo_arr))
-		return (0);
-	cnt = 0;
-	while (cnt < philo_ref.number_of_philosophers)
-	{
-		pthread_join(philo_arr[cnt].philo_thread, NULL);
-		cnt++;
-	}
-	return (0);
+// 	memset(&philo_ref, 0, sizeof(t_philo_ref));
+// 	if (!parse_philo(&philo_ref, argc, argv))
+// 	{
+// 		print_err_msg();
+// 		return (0);
+// 	}
+// 	if (philo_ref.number_of_times_must_eat == 0)
+// 		return (0);
+// 	if (!init_philo(&philo_ref, &philo_arr))
+// 		return (0);
+// 	cnt = 0;
+// 	while (cnt < philo_ref.number_of_philosophers)
+// 	{
+// 		pthread_join(philo_arr[cnt].philo_thread, NULL);
+// 		cnt++;
+// 	}
+// 	return (0);
+// }
+
+int main()
+{
+	pid_t my_pid;
+	printf("first pid: %d\n", getpid());
+	my_pid = fork();
+	if (my_pid)
+		printf("I'm parent(pid: %d) and fork return to me child pid: %d\n", getpid(), my_pid);
+	else
+		printf("I'm child(pid: %d) and fork return to me pid: %d\n", getpid(), my_pid);
 }

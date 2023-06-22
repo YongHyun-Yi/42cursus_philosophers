@@ -66,9 +66,7 @@ $(NAME): $(MANDATORY_OBJS)
 		@echo $(YELLOW)"                     PHILOSOPHER DONE"$(EOC)
 		@echo $(GREEN)"\n==========================================================\n"$(EOC)
 
-bonus: $(BONUS_NAME)
-
-$(BONUS_NAME): $(BONUS_OBJS)
+bonus: $(BONUS_OBJS)
 		@$(CC) $(CFLAGS) $^ -o $(NAME)
 		@touch $@
 		@echo $(GREEN)"\n==========================================================\n"$(EOC)

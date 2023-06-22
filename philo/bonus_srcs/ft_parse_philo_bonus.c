@@ -33,8 +33,8 @@ int	parse_philo(t_philo_ref *philo_ref, int argc, char **argv)
 			return (0);
 		philo_ref->number_of_times_must_eat = ft_atoi(argv[5]);
 	}
-	philo_ref->state_func[THINK] = philo_think;
-	philo_ref->state_func[EAT] = philo_eat;
-	philo_ref->state_func[SLEEP] = philo_sleep;
+	// philo_ref->state_func[THINK] = philo_think;
+	// philo_ref->state_func[EAT] = philo_eat;
+	// philo_ref->state_func[SLEEP] = philo_sleep;
 	return (1);
 }
