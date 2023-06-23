@@ -105,15 +105,15 @@ int main()
 
 	sem_forks = sem_open("sem_forks", O_CREAT, 0, 1);
 	
-	int i = 0;
-	while (i < 5)
+	int i = 1;
+	while (i <= 5)
 	{
 		my_pid = fork();
 		if (my_pid == 0)
 		{
 			printf("I'm child(pid: %d\n)", getpid());
 			sem_wait(sem_forks);
-			sleep(3);
+			sleep(i);
 			printf("pid: %d, sleep done!\n", getpid());
 			sem_post(sem_forks);
 			exit(0);
@@ -122,7 +122,7 @@ int main()
 		i++;
 	}
 	
-	while (i)
+	while (i > 0)
 	{
 		waitpid(-1, 0, 0);
 		i--;
