@@ -64,68 +64,48 @@ static void	print_err_msg(void)
 	printf("Must Eat ]⌟\033[0;0m\n");
 }
 
-// int	main(int argc, char **argv)
-// {
-// 	t_philo_ref		philo_ref;
-// 	t_philo_stat	*philo_arr;
-// 	int				cnt;
-
-// 	memset(&philo_ref, 0, sizeof(t_philo_ref));
-// 	if (!parse_philo(&philo_ref, argc, argv))
-// 	{
-// 		print_err_msg();
-// 		return (0);
-// 	}
-// 	if (philo_ref.number_of_times_must_eat == 0)
-// 		return (0);
-// 	if (!init_philo(&philo_ref, &philo_arr))
-// 		return (0);
-// 	cnt = 0;
-// 	while (cnt < philo_ref.number_of_philosophers)
-// 	{
-// 		pthread_join(philo_arr[cnt].philo_thread, NULL);
-// 		cnt++;
-// 	}
-// 	return (0);
-// }
-
-int main()
+int	main(int argc, char **argv)
 {
+	// t_philo_ref		philo_ref;
+	// t_philo_stat	*philo_arr;
+	// int				cnt;
+
+	// memset(&philo_ref, 0, sizeof(t_philo_ref));
+	// if (!parse_philo(&philo_ref, argc, argv))
+	// {
+	// 	print_err_msg();
+	// 	return (0);
+	// }
+	// if (philo_ref.number_of_times_must_eat == 0)
+	// 	return (0);
+	// if (!init_philo(&philo_ref, &philo_arr))
+	// 	return (0);
+	// cnt = 0;
+	// while (cnt < philo_ref.number_of_philosophers)
+	// {
+	// 	pthread_join(philo_arr[cnt].philo_thread, NULL);
+	// 	cnt++;
+	// }
+	// return (0);
+
+	sem_t *my_sem;
 	pid_t my_pid;
-	sem_t *sem_forks;
-	printf("first pid: %d\n", getpid());
 
-	// my_pid = fork();
-	// if (my_pid)
-	// 	printf("I'm parent(pid: %d) and fork return to me child pid: %d\n", getpid(), my_pid);
-	// else
-	// 	printf("I'm child(pid: %d) and fork return to me pid: %d\n", getpid(), my_pid);
-	
-	printf("\n------------------------\n\n");
-
-	sem_forks = sem_open("sem_forks", O_CREAT, 0, 1);
-	
-	int i = 1;
-	while (i <= 5)
+	sem_unlink("my_sem");
+	my_sem = sem_open("my_sem", O_CREAT, 0, 2);
+	for (int i = 0; i < 5; i++)
 	{
 		my_pid = fork();
 		if (my_pid == 0)
 		{
-			printf("I'm child(pid: %d\n)", getpid());
-			sem_wait(sem_forks);
-			sleep(i);
-			printf("pid: %d, sleep done!\n", getpid());
-			sem_post(sem_forks);
-			exit(0);
+			sem_wait(my_sem);
+
+			sleep(1);
+			printf("child(%d) sleep done\n", getpid());
+
+			sem_post(my_sem);
+			return 0;
 		}
-		printf("i: %d\n", i);
-		i++;
 	}
-	
-	while (i > 0)
-	{
-		waitpid(-1, 0, 0);
-		i--;
-	}
-	printf("I'm parent(pid: %d) wait all child process\n", getpid());
+	printf("I'm Parent\n");
 }

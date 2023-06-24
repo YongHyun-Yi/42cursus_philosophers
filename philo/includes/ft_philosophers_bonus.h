@@ -45,6 +45,9 @@ typedef struct s_philo_ref
 	int				number_of_times_must_eat;
 	int				number_of_full_philosophers;
 	int				is_anyone_die;
+	sem_t			*s_die;
+	sem_t			*s_full_eat;
+	sem_t			*s_fork;
 	pthread_mutex_t	m_die;
 	pthread_mutex_t	m_full_eat;
 	pthread_mutex_t	*m_fork_arr;
