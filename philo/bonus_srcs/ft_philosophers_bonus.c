@@ -26,13 +26,13 @@ void	print_philo(t_philo_stat *philo_stat, char *state)
 {
 	long	print_time;
 
-	pthread_mutex_lock(&philo_stat->philo_ref->m_die);
+	// pthread_mutex_lock(&philo_stat->philo_ref->m_die);
 	if (!philo_stat->philo_ref->is_anyone_die)
 	{
 		print_time = my_gettimeofday() - philo_stat->philo_ref->start_time;
 		printf("%ld %d %s\n", print_time, philo_stat->philo_num + 1, state);
 	}
-	pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
+	// pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
 }
 
 long	get_sleep_time(t_philo_stat *philo_stat)
@@ -66,46 +66,25 @@ static void	print_err_msg(void)
 
 int	main(int argc, char **argv)
 {
-	// t_philo_ref		philo_ref;
-	// t_philo_stat	*philo_arr;
-	// int				cnt;
+	t_philo_ref		philo_ref;
+	t_philo_stat	philo_stat;
+	int				cnt;
 
-	// memset(&philo_ref, 0, sizeof(t_philo_ref));
-	// if (!parse_philo(&philo_ref, argc, argv))
-	// {
-	// 	print_err_msg();
-	// 	return (0);
-	// }
-	// if (philo_ref.number_of_times_must_eat == 0)
-	// 	return (0);
-	// if (!init_philo(&philo_ref, &philo_arr))
-	// 	return (0);
-	// cnt = 0;
-	// while (cnt < philo_ref.number_of_philosophers)
-	// {
-	// 	pthread_join(philo_arr[cnt].philo_thread, NULL);
-	// 	cnt++;
-	// }
-	// return (0);
-
-	sem_t *my_sem;
-	pid_t my_pid;
-
-	sem_unlink("my_sem");
-	my_sem = sem_open("my_sem", O_CREAT, 0, 2);
-	for (int i = 0; i < 5; i++)
+	memset(&philo_ref, 0, sizeof(t_philo_ref));
+	if (!parse_philo(&philo_ref, argc, argv))
 	{
-		my_pid = fork();
-		if (my_pid == 0)
-		{
-			sem_wait(my_sem);
-
-			sleep(1);
-			printf("child(%d) sleep done\n", getpid());
-
-			sem_post(my_sem);
-			return 0;
-		}
+		print_err_msg();
+		return (0);
 	}
-	printf("I'm Parent\n");
+	if (philo_ref.number_of_times_must_eat == 0)
+		return (0);
+	if (!init_philo(&philo_ref, &philo_stat))
+		return (0);
+	cnt = 0;
+	while (cnt < philo_ref.number_of_philosophers)
+	{
+		waitpid(-1, 0, 0);
+		cnt++;
+	}
+	return (0);
 }

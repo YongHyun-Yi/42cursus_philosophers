@@ -25,11 +25,7 @@
 typedef struct s_philo_stat
 {
 	struct s_philo_ref	*philo_ref;
-	pthread_t			philo_thread;
 	int					philo_num;
-	int					fork_idx;
-	int					*fork[2];
-	pthread_mutex_t		*m_fork[2];
 	int					cur_state;
 	int					how_much_eat;
 	long				last_time_to_eat;
@@ -48,11 +44,7 @@ typedef struct s_philo_ref
 	sem_t			*s_die;
 	sem_t			*s_full_eat;
 	sem_t			*s_fork;
-	pthread_mutex_t	m_die;
-	pthread_mutex_t	m_full_eat;
-	pthread_mutex_t	*m_fork_arr;
 	void			(*state_func[3])(struct s_philo_stat *);
-	int				*fork_arr;
 	long			start_time;
 }	t_philo_ref;
 
@@ -74,9 +66,10 @@ long	get_sleep_time(t_philo_stat *philo_stat);
 
 int		parse_philo(t_philo_ref *philo_ref, int argc, char **argv);
 
-int		init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr);
+int		init_philo(t_philo_ref *philo_ref, t_philo_stat *philo_arr);
 
-void	*philo_routine(void *args);
+// void	*philo_routine(void *args);
+void	*philo_routine(t_philo_stat	*philo_stat);
 
 void	philo_think(t_philo_stat *philo_stat);
 void	philo_eat(t_philo_stat *philo_stat);
