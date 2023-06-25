@@ -27,8 +27,15 @@ int	init_philo(t_philo_ref *philo_ref, t_philo_stat *philo_stat)
 	pid_t	my_pid;
 
 	philo_ref->start_time = my_gettimeofday();
-	philo_ref->s_fork = sem_open("s_fork", O_CREAT, 0, philo_ref->number_of_philosophers);
-	// return (0);
+	
+	philo_ref->s_fork = sem_open("s_fork", O_CREAT | O_EXCL, 0, philo_ref->number_of_philosophers);
+	if (philo_ref->s_fork == SEM_FAILED)
+	{
+		sem_unlink("s_fork");
+		philo_ref->s_fork = sem_open("s_fork", O_CREAT, 0, philo_ref->number_of_philosophers);
+	}
+	if (philo_ref->s_fork == SEM_FAILED)
+		return (0);
 	cnt = 0;
 	while (cnt < philo_ref->number_of_philosophers)
 	{
@@ -36,7 +43,7 @@ int	init_philo(t_philo_ref *philo_ref, t_philo_stat *philo_stat)
 		if (my_pid == -1)
 			return (0);
 		else if (my_pid == 0)
-			philo_stat_setup(philo_ref, philo_stat, cnt * 2);
+			philo_stat_setup(philo_ref, philo_stat, cnt);
 		cnt++;
 	}
 	return (1);
