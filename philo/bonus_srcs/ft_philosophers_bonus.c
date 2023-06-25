@@ -66,6 +66,7 @@ int	main(int argc, char **argv)
 {
 	t_philo_ref		philo_ref;
 	t_philo_stat	philo_stat;
+	int				exit_state;
 	int				cnt;
 
 	memset(&philo_ref, 0, sizeof(t_philo_ref));
@@ -77,8 +78,10 @@ int	main(int argc, char **argv)
 	if (philo_ref.number_of_times_must_eat == 0 || \
 	!init_philo(&philo_ref, &philo_stat))
 		return (0);
-	cnt = -1;
-	while (cnt++ < philo_ref.number_of_philosophers)
-		waitpid(-1, 0, 0);
+	// sleep(3);
+	// cnt = -1;
+	// while (cnt++ < philo_ref.number_of_philosophers)
+	waitpid(-1, 0, 0);
+	kill(0, SIGKILL);
 	return (0);
 }

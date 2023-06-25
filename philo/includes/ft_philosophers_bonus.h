@@ -21,6 +21,7 @@
 # include <pthread.h>
 # include <limits.h>
 # include <semaphore.h>
+# include <signal.h>
 
 typedef struct s_philo_stat
 {
