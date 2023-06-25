@@ -40,8 +40,6 @@ long	get_sleep_time(t_philo_stat *philo_stat)
 	long	sleep_time;
 
 	sleep_time = 0;
-	if (philo_stat->cur_state == THINK)
-		return (200);
 	if (philo_stat->cur_state == EAT)
 		sleep_time = philo_stat->philo_ref->time_to_eat \
 		- (my_gettimeofday() - philo_stat->last_time_to_eat);
@@ -49,9 +47,9 @@ long	get_sleep_time(t_philo_stat *philo_stat)
 		sleep_time = philo_stat->philo_ref->time_to_sleep \
 		- (my_gettimeofday() - philo_stat->last_time_to_sleep);
 	if (sleep_time / 2 > 20)
-		return (sleep_time / 2 * 100);
+		return (sleep_time / 2);
 	else
-		return (20 * 100);
+		return (20);
 }
 
 static void	print_err_msg(void)
@@ -79,11 +77,8 @@ int	main(int argc, char **argv)
 	if (philo_ref.number_of_times_must_eat == 0 || \
 	!init_philo(&philo_ref, &philo_stat))
 		return (0);
-	cnt = 0;
-	while (cnt < philo_ref.number_of_philosophers)
-	{
+	cnt = -1;
+	while (cnt++ < philo_ref.number_of_philosophers)
 		waitpid(-1, 0, 0);
-		cnt++;
-	}
 	return (0);
 }

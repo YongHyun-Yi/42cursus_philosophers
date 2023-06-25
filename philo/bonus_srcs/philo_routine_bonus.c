@@ -58,8 +58,8 @@ void	*philo_routine(t_philo_stat	*philo_stat)
 			philo_eat(philo_stat);
 		else
 			philo_sleep(philo_stat);
-
-		usleep(get_sleep_time(philo_stat));
+		if (philo_stat->cur_state == EAT || philo_stat->cur_state == SLEEP)
+			usleep(get_sleep_time(philo_stat));
 	}
 	return (0);
 }
