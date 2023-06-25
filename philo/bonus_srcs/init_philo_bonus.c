@@ -19,6 +19,9 @@ t_philo_stat *philo_stat, int idx)
 	philo_stat->last_time_to_eat = philo_ref->start_time;
 	philo_stat->philo_ref = philo_ref;
 	philo_routine(philo_stat);
+	// pthread_create(&philo_stat->philo_thread, NULL, philo_routine, philo_stat);
+	// excute monitoring
+	pthread_join(philo_stat->philo_thread, NULL);
 }
 
 int	init_philo(t_philo_ref *philo_ref, t_philo_stat *philo_stat)

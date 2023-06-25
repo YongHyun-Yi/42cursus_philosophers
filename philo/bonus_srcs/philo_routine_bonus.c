@@ -46,8 +46,12 @@ static int	is_philo_died(t_philo_stat *philo_stat)
 	> philo_stat->philo_ref->time_to_die);
 }
 
-void	*philo_routine(t_philo_stat	*philo_stat)
+// void	*philo_routine(t_philo_stat	*philo_stat)
+void	*philo_routine(void *args)
 {
+	t_philo_stat	*philo_stat;
+
+	philo_stat = (t_philo_stat *)args;
 	if (philo_stat->philo_num % 2)
 		usleep(10 * philo_stat->philo_ref->number_of_philosophers);
 	while (1)
