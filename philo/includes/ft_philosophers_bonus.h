@@ -13,6 +13,8 @@
 #ifndef FT_PHILOSOPHERS_BONUS_H
 # define FT_PHILOSOPHERS_BONUS_H
 
+#include <fcntl.h>
+
 # include <string.h>
 # include <stdio.h>
 # include <stdlib.h>
