@@ -44,7 +44,6 @@ typedef struct s_philo_ref
 	sem_t			*s_die;
 	sem_t			*s_full_eat;
 	sem_t			*s_fork;
-	void			(*state_func[3])(struct s_philo_stat *);
 	long			start_time;
 }	t_philo_ref;
 

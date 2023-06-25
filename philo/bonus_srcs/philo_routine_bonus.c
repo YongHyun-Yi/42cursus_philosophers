@@ -52,18 +52,12 @@ void	*philo_routine(t_philo_stat	*philo_stat)
 		usleep(10 * philo_stat->philo_ref->number_of_philosophers);
 	while (1)
 	{
-
-		// if (is_all_philo_full(philo_stat->philo_ref) \
-		// || get_dead_thread(philo_stat->philo_ref))
-		// 	return (NULL);
-		// if (is_philo_died(philo_stat))
-		// {
-		// 	print_philo(philo_stat, "died");
-		// 	set_dead_thread(philo_stat->philo_ref, 1);
-		// 	return (NULL);
-		// }
-
-		philo_stat->philo_ref->state_func[philo_stat->cur_state](philo_stat);
+		if (philo_stat->cur_state == THINK)
+			philo_think(philo_stat);
+		else if (philo_stat->cur_state == EAT)
+			philo_eat(philo_stat);
+		else
+			philo_sleep(philo_stat);
 
 		usleep(get_sleep_time(philo_stat));
 	}

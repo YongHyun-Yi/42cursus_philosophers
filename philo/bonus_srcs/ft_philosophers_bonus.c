@@ -76,9 +76,8 @@ int	main(int argc, char **argv)
 		print_err_msg();
 		return (0);
 	}
-	if (philo_ref.number_of_times_must_eat == 0)
-		return (0);
-	if (!init_philo(&philo_ref, &philo_stat))
+	if (philo_ref.number_of_times_must_eat == 0 || \
+	!init_philo(&philo_ref, &philo_stat))
 		return (0);
 	cnt = 0;
 	while (cnt < philo_ref.number_of_philosophers)
