@@ -18,6 +18,14 @@ t_philo_stat *philo_stat, int idx)
 	philo_stat->philo_num = idx;
 	philo_stat->last_time_to_eat = philo_ref->start_time;
 	philo_stat->philo_ref = philo_ref;
+
+	philo_stat->s_die = sem_open("s_full_eat", O_CREAT | O_EXCL, 0, philo_ref->number_of_philosophers);
+	if (philo_stat->s_die == SEM_FAILED)
+	{
+		sem_unlink("s_full_eat");
+		philo_stat->s_die = sem_open("s_full_eat", O_CREAT, 0, philo_ref->number_of_philosophers);
+	}
+
 	if (philo_ref->s_full_eat)
 		sem_wait(philo_ref->s_full_eat);
 	// philo_routine(philo_stat);
@@ -26,7 +34,7 @@ t_philo_stat *philo_stat, int idx)
 	pthread_join(philo_stat->philo_thread, NULL);
 }
 
-int init_sems(t_philo_ref *philo_ref)
+void init_sems(t_philo_ref *philo_ref)
 {
 	philo_ref->s_fork = sem_open("s_fork", O_CREAT | O_EXCL, 0, philo_ref->number_of_philosophers);
 	if (philo_ref->s_fork == SEM_FAILED)
@@ -34,8 +42,6 @@ int init_sems(t_philo_ref *philo_ref)
 		sem_unlink("s_fork");
 		philo_ref->s_fork = sem_open("s_fork", O_CREAT, 0, philo_ref->number_of_philosophers);
 	}
-	if (philo_ref->s_fork == SEM_FAILED)
-		return (0);
 	if (philo_ref->number_of_times_must_eat != -1)
 	{
 		philo_ref->s_full_eat = sem_open("s_full_eat", O_CREAT | O_EXCL, 0, philo_ref->number_of_philosophers);
@@ -44,10 +50,7 @@ int init_sems(t_philo_ref *philo_ref)
 			sem_unlink("s_full_eat");
 			philo_ref->s_full_eat = sem_open("s_full_eat", O_CREAT, 0, philo_ref->number_of_philosophers);
 		}
-		if (philo_ref->s_full_eat == SEM_FAILED)
-			return (0);
 	}
-	return (1);
 }
 
 int	init_philo(t_philo_ref *philo_ref, t_philo_stat *philo_stat)
@@ -65,8 +68,7 @@ int	init_philo(t_philo_ref *philo_ref, t_philo_stat *philo_stat)
 	// }
 	// if (philo_ref->s_fork == SEM_FAILED)
 	// 	return (0);
-	if (!init_sems(philo_ref))
-		return (0);
+	init_sems(philo_ref)
 	
 	cnt = 0;
 	while (cnt < philo_ref->number_of_philosophers)
