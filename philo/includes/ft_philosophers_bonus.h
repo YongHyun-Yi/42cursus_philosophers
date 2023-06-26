@@ -34,6 +34,7 @@ typedef struct s_philo_stat
 	int					how_much_eat;
 	long				last_time_to_eat;
 	long				last_time_to_sleep;
+	sem_t				*s_die;
 }	t_philo_stat;
 
 typedef struct s_philo_ref
@@ -45,7 +46,6 @@ typedef struct s_philo_ref
 	int				number_of_times_must_eat;
 	int				number_of_full_philosophers;
 	int				is_anyone_die;
-	// sem_t			*s_die;
 	sem_t			*s_full_eat;
 	sem_t			*s_fork;
 	long			start_time;

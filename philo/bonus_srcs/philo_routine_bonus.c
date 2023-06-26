@@ -12,38 +12,36 @@
 
 #include "ft_philosophers_bonus.h"
 
-static int	is_all_philo_full(t_philo_ref *philo_ref)
+void	check_full_eat(void *args)
 {
-	int	ret;
+	t_philo_ref	*philo_ref;
+	int			cnt;
 
-	// pthread_mutex_lock(&philo_ref->m_full_eat);
-	ret = (philo_ref->number_of_full_philosophers \
-	== philo_ref->number_of_philosophers);
-	// pthread_mutex_unlock(&philo_ref->m_full_eat);
-	return (ret);
+	philo_ref = (t_philo_ref *)args;
+	cnt = philo_ref->number_of_philosophers;
+	while (cnt--)
+		sem_wait(philo_ref->s_full_eat);
+	kill(0, SIGKILL);
 }
 
-static int	get_dead_thread(t_philo_ref *philo_ref)
+void	*monitoring_is_alive(void *args)
 {
-	int	ret;
+	t_philo_stat	*philo_stat;
 
-	// pthread_mutex_lock(&philo_ref->m_die);
-	ret = philo_ref->is_anyone_die;
-	// pthread_mutex_unlock(&philo_ref->m_die);
-	return (ret);
-}
-
-static void	set_dead_thread(t_philo_ref *philo_ref, int value)
-{
-	// pthread_mutex_lock(&philo_ref->m_die);
-	philo_ref->is_anyone_die = value;
-	// pthread_mutex_unlock(&philo_ref->m_die);
-}
-
-static int	is_philo_died(t_philo_stat *philo_stat)
-{
-	return (my_gettimeofday() - philo_stat->last_time_to_eat \
-	> philo_stat->philo_ref->time_to_die);
+	philo_stat = (t_philo_stat *)args;
+	while (1)
+	{
+		sem_wait(philo_stat->s_die);
+		if (my_gettimeofday() - philo_stat->last_time_to_eat \
+		> philo_stat->philo_ref->time_to_die)
+		{
+			printf("%ld %d %s\n", my_gettimeofday() - philo_stat->philo_ref->\
+			start_time, philo_stat->philo_num + 1, "is died\n");
+			exit(EXIT_FAILURE);
+		}
+		sem_post(philo_stat->s_die);
+		usleep(200);
+	}
 }
 
 // void	*philo_routine(t_philo_stat	*philo_stat)

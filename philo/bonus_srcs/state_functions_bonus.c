@@ -39,8 +39,9 @@ void	philo_eat(t_philo_stat *philo_stat)
 			== philo_stat->how_much_eat)
 			{
 				// pthread_mutex_lock(&philo_stat->philo_ref->m_full_eat);
-				philo_stat->philo_ref->number_of_full_philosophers++;
+				// philo_stat->philo_ref->number_of_full_philosophers++;
 				// pthread_mutex_unlock(&philo_stat->philo_ref->m_full_eat);
+				sem_post(philo_stat->philo_ref->s_full_eat);
 			}
 		}
 		philo_stat->cur_state = SLEEP;

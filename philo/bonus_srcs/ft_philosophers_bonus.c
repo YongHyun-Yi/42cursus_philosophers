@@ -26,13 +26,10 @@ void	print_philo(t_philo_stat *philo_stat, char *state)
 {
 	long	print_time;
 
-	// pthread_mutex_lock(&philo_stat->philo_ref->m_die);
-	if (!philo_stat->philo_ref->is_anyone_die)
-	{
-		print_time = my_gettimeofday() - philo_stat->philo_ref->start_time;
-		printf("%ld %d %s\n", print_time, philo_stat->philo_num + 1, state);
-	}
-	// pthread_mutex_unlock(&philo_stat->philo_ref->m_die);
+	sem_wait(philo_stat->s_die);
+	print_time = my_gettimeofday() - philo_stat->philo_ref->start_time;
+	printf("%ld %d %s\n", print_time, philo_stat->philo_num + 1, state);
+	sem_post(philo_stat->s_die);
 }
 
 long	get_sleep_time(t_philo_stat *philo_stat)

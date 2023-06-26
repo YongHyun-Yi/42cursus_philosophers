@@ -36,7 +36,7 @@ int init_sems(t_philo_ref *philo_ref)
 	}
 	if (philo_ref->s_fork == SEM_FAILED)
 		return (0);
-	if (philo_ref->number_of_times_must_eat > 0)
+	if (philo_ref->number_of_times_must_eat != -1)
 	{
 		philo_ref->s_full_eat = sem_open("s_full_eat", O_CREAT | O_EXCL, 0, philo_ref->number_of_philosophers);
 		if (philo_ref->s_full_eat == SEM_FAILED)
