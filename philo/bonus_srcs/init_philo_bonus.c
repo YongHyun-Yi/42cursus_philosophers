@@ -75,6 +75,6 @@ int	init_philo(t_philo_ref *philo_ref, t_philo_stat *philo_stat)
 	// usleep(100 * philo_stat->philo_ref->number_of_philosophers);
 	usleep(200);
 	if (philo_ref->s_full_eat)
-		pthread_create(&philo_ref->full_eet_thread, NULL, check_full_eat, philo_ref);
+		pthread_create(&philo_ref->full_eat_thread, NULL, check_full_eat, philo_ref);
 	return (1);
 }

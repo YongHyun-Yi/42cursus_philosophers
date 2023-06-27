@@ -47,7 +47,7 @@ typedef struct s_philo_ref
 	int				number_of_times_must_eat;
 	int				number_of_full_philosophers;
 	int				is_anyone_die;
-	pthread_t		full_eet_thread;
+	pthread_t		full_eat_thread;
 	sem_t			*s_full_eat;
 	sem_t			*s_fork;
 	long			start_time;
