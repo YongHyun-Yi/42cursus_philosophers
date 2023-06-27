@@ -42,7 +42,7 @@ void	*monitoring_is_alive(void *args)
 		}
 		sem_post(philo_stat->s_die);
 		// usleep(1000 * 1000);
-		usleep(20);
+		usleep(200);
 	}
 }
 

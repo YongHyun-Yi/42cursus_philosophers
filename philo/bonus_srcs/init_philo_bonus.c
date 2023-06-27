@@ -30,10 +30,7 @@ t_philo_stat *philo_stat, int idx)
 
 	if (philo_ref->s_full_eat)
 		sem_wait(philo_ref->s_full_eat);
-	// philo_routine(philo_stat);
 	pthread_create(&philo_stat->philo_thread, NULL, philo_routine, philo_stat);
-	// excute monitoring
-	// pthread_join(philo_stat->philo_thread, NULL);
 	monitoring_is_alive(philo_stat);
 }
 
@@ -75,6 +72,8 @@ int	init_philo(t_philo_ref *philo_ref, t_philo_stat *philo_stat)
 			philo_stat_setup(philo_ref, philo_stat, cnt);
 		cnt++;
 	}
+	// usleep(100 * philo_stat->philo_ref->number_of_philosophers);
+	usleep(200);
 	if (philo_ref->s_full_eat)
 		pthread_create(&philo_ref->full_eet_thread, NULL, check_full_eat, philo_ref);
 	return (1);
