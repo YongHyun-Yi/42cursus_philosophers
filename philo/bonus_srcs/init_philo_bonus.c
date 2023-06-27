@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   init_philo.c                                       :+:      :+:    :+:   */
+/*   init_philo_bonus.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/20 12:27:18 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/06/20 12:27:41 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/06/27 11:56:59 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,14 @@ t_philo_stat *philo_stat, int idx)
 	philo_stat->philo_num = idx;
 	philo_stat->last_time_to_eat = philo_ref->start_time;
 	philo_stat->philo_ref = philo_ref;
-
-	philo_stat->s_die = sem_open("s_full_eat", O_CREAT | O_EXCL, 0, philo_ref->number_of_philosophers);
+	philo_stat->s_die_name = ft_itoa(idx);
+	if (!philo_stat->s_die_name)
+		kill(0, SIGKILL);
+	philo_stat->s_die = sem_open(philo_stat->s_die_name, O_CREAT | O_EXCL, 0, philo_ref->number_of_philosophers);
 	if (philo_stat->s_die == SEM_FAILED)
 	{
-		sem_unlink("s_full_eat");
-		philo_stat->s_die = sem_open("s_full_eat", O_CREAT, 0, philo_ref->number_of_philosophers);
+		sem_unlink(philo_stat->s_die_name);
+		philo_stat->s_die = sem_open(philo_stat->s_die_name, O_CREAT, 0, philo_ref->number_of_philosophers);
 	}
 
 	if (philo_ref->s_full_eat)
@@ -68,7 +70,7 @@ int	init_philo(t_philo_ref *philo_ref, t_philo_stat *philo_stat)
 	// }
 	// if (philo_ref->s_fork == SEM_FAILED)
 	// 	return (0);
-	init_sems(philo_ref)
+	init_sems(philo_ref);
 	
 	cnt = 0;
 	while (cnt < philo_ref->number_of_philosophers)

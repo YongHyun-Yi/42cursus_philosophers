@@ -6,7 +6,7 @@
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/02 12:30:01 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/06/22 10:13:38 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/06/27 10:58:21 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ typedef struct s_philo_stat
 	int					how_much_eat;
 	long				last_time_to_eat;
 	long				last_time_to_sleep;
+	char				*s_die_name;
 	sem_t				*s_die;
 }	t_philo_stat;
 
@@ -62,6 +63,9 @@ int		ft_strisnum(char *str);
 int		ft_atoi(const char *str);
 void	ft_putnbr_fd(int n, int fd);
 void	ft_putchar_fd(char c, int fd);
+char	*ft_itoa(int n);
+char	*ft_strdup(const char *s1);
+size_t	ft_strlen(const char *str);
 
 long	my_gettimeofday(void);
 void	print_philo(t_philo_stat *philo_stat, char *state);
