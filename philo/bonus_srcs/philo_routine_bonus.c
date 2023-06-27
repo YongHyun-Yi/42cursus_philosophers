@@ -41,18 +41,18 @@ void	*monitoring_is_alive(void *args)
 			exit(EXIT_FAILURE);
 		}
 		sem_post(philo_stat->s_die);
-		usleep(200);
+		// usleep(1000 * 1000);
+		usleep(20);
 	}
 }
 
-// void	*philo_routine(t_philo_stat	*philo_stat)
 void	*philo_routine(void *args)
 {
 	t_philo_stat	*philo_stat;
 
 	philo_stat = (t_philo_stat *)args;
 	if (philo_stat->philo_num % 2)
-		usleep(10 * philo_stat->philo_ref->number_of_philosophers);
+		usleep(100 * philo_stat->philo_ref->number_of_philosophers);
 	while (1)
 	{
 		if (philo_stat->cur_state == THINK)

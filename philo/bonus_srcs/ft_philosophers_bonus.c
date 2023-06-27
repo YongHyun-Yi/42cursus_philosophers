@@ -67,6 +67,7 @@ int	main(int argc, char **argv)
 	int				cnt;
 
 	memset(&philo_ref, 0, sizeof(t_philo_ref));
+	memset(&philo_stat, 0, sizeof(t_philo_stat));
 	if (!parse_philo(&philo_ref, argc, argv))
 	{
 		print_err_msg();
@@ -75,9 +76,6 @@ int	main(int argc, char **argv)
 	if (philo_ref.number_of_times_must_eat == 0 || \
 	!init_philo(&philo_ref, &philo_stat))
 		return (0);
-	// sleep(3);
-	// cnt = -1;
-	// while (cnt++ < philo_ref.number_of_philosophers)
 	waitpid(-1, 0, 0);
 	printf("end somthing\n");
 	kill(0, SIGKILL);
