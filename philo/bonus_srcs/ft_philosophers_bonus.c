@@ -26,9 +26,9 @@ void	print_philo(t_philo_stat *philo_stat, char *state)
 {
 	long	print_time;
 
+	print_time = my_gettimeofday() - philo_stat->philo_ref->start_time;
 	// sem_wait(philo_stat->s_die);
 	sem_wait(philo_stat->philo_ref->s_is_anyone_die);
-	print_time = my_gettimeofday() - philo_stat->philo_ref->start_time;
 	printf("%ld %d %s\n", print_time, philo_stat->philo_num + 1, state);
 	// sem_post(philo_stat->s_die);
 	sem_post(philo_stat->philo_ref->s_is_anyone_die);
