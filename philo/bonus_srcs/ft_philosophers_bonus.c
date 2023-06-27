@@ -79,6 +79,7 @@ int	main(int argc, char **argv)
 	// cnt = -1;
 	// while (cnt++ < philo_ref.number_of_philosophers)
 	waitpid(-1, 0, 0);
+	printf("end somthing\n");
 	kill(0, SIGKILL);
 	return (0);
 }

@@ -47,6 +47,7 @@ typedef struct s_philo_ref
 	int				number_of_times_must_eat;
 	int				number_of_full_philosophers;
 	int				is_anyone_die;
+	pthread_t		full_eet_thread;
 	sem_t			*s_full_eat;
 	sem_t			*s_fork;
 	long			start_time;
@@ -77,6 +78,8 @@ int		init_philo(t_philo_ref *philo_ref, t_philo_stat *philo_arr);
 
 void	*philo_routine(void *args);
 // void	*philo_routine(t_philo_stat	*philo_stat);
+void	*monitoring_is_alive(void *args);
+void	*check_full_eat(void *args);
 
 void	philo_think(t_philo_stat *philo_stat);
 void	philo_eat(t_philo_stat *philo_stat);

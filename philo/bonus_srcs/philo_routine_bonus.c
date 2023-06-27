@@ -12,7 +12,7 @@
 
 #include "ft_philosophers_bonus.h"
 
-void	check_full_eat(void *args)
+void	*check_full_eat(void *args)
 {
 	t_philo_ref	*philo_ref;
 	int			cnt;
@@ -22,6 +22,7 @@ void	check_full_eat(void *args)
 	while (cnt--)
 		sem_wait(philo_ref->s_full_eat);
 	kill(0, SIGKILL);
+	return (0);
 }
 
 void	*monitoring_is_alive(void *args)

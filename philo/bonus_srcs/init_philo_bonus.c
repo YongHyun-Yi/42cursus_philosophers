@@ -33,7 +33,8 @@ t_philo_stat *philo_stat, int idx)
 	// philo_routine(philo_stat);
 	pthread_create(&philo_stat->philo_thread, NULL, philo_routine, philo_stat);
 	// excute monitoring
-	pthread_join(philo_stat->philo_thread, NULL);
+	// pthread_join(philo_stat->philo_thread, NULL);
+	monitoring_is_alive(philo_stat);
 }
 
 void init_sems(t_philo_ref *philo_ref)
@@ -62,14 +63,6 @@ int	init_philo(t_philo_ref *philo_ref, t_philo_stat *philo_stat)
 
 	philo_ref->start_time = my_gettimeofday();
 	
-	// philo_ref->s_fork = sem_open("s_fork", O_CREAT | O_EXCL, 0, philo_ref->number_of_philosophers);
-	// if (philo_ref->s_fork == SEM_FAILED)
-	// {
-	// 	sem_unlink("s_fork");
-	// 	philo_ref->s_fork = sem_open("s_fork", O_CREAT, 0, philo_ref->number_of_philosophers);
-	// }
-	// if (philo_ref->s_fork == SEM_FAILED)
-	// 	return (0);
 	init_sems(philo_ref);
 	
 	cnt = 0;
@@ -82,5 +75,7 @@ int	init_philo(t_philo_ref *philo_ref, t_philo_stat *philo_stat)
 			philo_stat_setup(philo_ref, philo_stat, cnt);
 		cnt++;
 	}
+	if (philo_ref->s_full_eat)
+		pthread_create(&philo_ref->full_eet_thread, NULL, check_full_eat, philo_ref);
 	return (1);
 }
