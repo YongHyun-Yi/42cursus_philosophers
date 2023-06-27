@@ -21,7 +21,7 @@ void	*check_full_eat(void *args)
 	cnt = philo_ref->number_of_philosophers;
 	while (cnt--)
 		sem_wait(philo_ref->s_full_eat);
-	kill(0, SIGKILL);
+	kill(0, SIGINT);
 	return (0);
 }
 
@@ -36,6 +36,7 @@ void	*monitoring_is_alive(void *args)
 		if (my_gettimeofday() - philo_stat->last_time_to_eat \
 		> philo_stat->philo_ref->time_to_die)
 		{
+			sem_wait(philo_stat->philo_ref->s_is_anyone_die);
 			printf("%ld %d %s\n", my_gettimeofday() - philo_stat->philo_ref->\
 			start_time, philo_stat->philo_num + 1, "is died\n");
 			exit(EXIT_FAILURE);

@@ -42,6 +42,12 @@ void init_sems(t_philo_ref *philo_ref)
 		sem_unlink("s_fork");
 		philo_ref->s_fork = sem_open("s_fork", O_CREAT, 0, philo_ref->number_of_philosophers);
 	}
+	philo_ref->s_is_anyone_die = sem_open("s_is_anyone_die", O_CREAT | O_EXCL, 0, 1);
+	if (philo_ref->s_is_anyone_die == SEM_FAILED)
+	{
+		sem_unlink("s_is_anyone_die");
+		philo_ref->s_is_anyone_die = sem_open("s_is_anyone_die", O_CREAT, 0, 1);
+	}
 	if (philo_ref->number_of_times_must_eat != -1)
 	{
 		philo_ref->s_full_eat = sem_open("s_full_eat", O_CREAT | O_EXCL, 0, philo_ref->number_of_philosophers);
