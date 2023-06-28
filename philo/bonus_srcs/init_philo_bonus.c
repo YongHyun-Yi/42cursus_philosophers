@@ -20,7 +20,7 @@ t_philo_stat *philo_stat, int idx)
 	philo_stat->philo_ref = philo_ref;
 	philo_stat->s_die_name = ft_itoa(idx);
 	if (!philo_stat->s_die_name)
-		kill(0, SIGKILL);
+		kill(0, SIGINT);
 	philo_stat->s_die = sem_open(philo_stat->s_die_name, O_CREAT | O_EXCL, 0, philo_ref->number_of_philosophers);
 	if (philo_stat->s_die == SEM_FAILED)
 	{
@@ -32,7 +32,6 @@ t_philo_stat *philo_stat, int idx)
 		sem_wait(philo_ref->s_full_eat);
 	pthread_create(&philo_stat->philo_thread, NULL, philo_routine, philo_stat);
 	monitoring_is_alive(philo_stat);
-	// pthread_join(philo_stat->philo_thread, NULL);
 }
 
 void init_sems(t_philo_ref *philo_ref)
@@ -80,7 +79,6 @@ int	init_philo(t_philo_ref *philo_ref, t_philo_stat *philo_stat)
 			philo_stat_setup(philo_ref, philo_stat, cnt);
 		cnt++;
 	}
-	// usleep(100 * philo_stat->philo_ref->number_of_philosophers);
 	usleep(200);
 	if (philo_ref->s_full_eat)
 		pthread_create(&philo_ref->full_eat_thread, NULL, check_full_eat, philo_ref);
