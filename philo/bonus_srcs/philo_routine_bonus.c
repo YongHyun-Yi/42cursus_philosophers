@@ -25,6 +25,25 @@ void	*check_full_eat(void *args)
 	return (0);
 }
 
+static int	is_philo_died(t_philo_stat *philo_stat)
+{
+	int	ret;
+
+	// sem_wait(philo_stat->s_die);
+	ret = my_gettimeofday() - philo_stat->last_time_to_eat \
+	> philo_stat->philo_ref->time_to_die;
+	// sem_post(philo_stat->s_die);
+	return (ret);
+}
+
+void	set_philo_died(t_philo_stat	*philo_stat)
+{
+	sem_wait(philo_stat->philo_ref->s_is_anyone_die);
+	printf("%ld %d %s\n", my_gettimeofday() - philo_stat->philo_ref->\
+	start_time, philo_stat->philo_num + 1, "is died\n");
+	exit(EXIT_FAILURE);
+}
+
 void	*monitoring_is_alive(void *args)
 {
 	t_philo_stat	*philo_stat;
@@ -32,18 +51,17 @@ void	*monitoring_is_alive(void *args)
 	philo_stat = (t_philo_stat *)args;
 	while (1)
 	{
-		sem_wait(philo_stat->s_die);
-		if (my_gettimeofday() - philo_stat->last_time_to_eat \
-		> philo_stat->philo_ref->time_to_die)
+		if (philo_stat->cur_state != EAT)
+			usleep(get_sleep_time(philo_stat));
+		else
 		{
-			sem_wait(philo_stat->philo_ref->s_is_anyone_die);
-			printf("%ld %d %s\n", my_gettimeofday() - philo_stat->philo_ref->\
-			start_time, philo_stat->philo_num + 1, "is died\n");
-			exit(EXIT_FAILURE);
+			sem_wait(philo_stat->s_die);
+			if (is_philo_died(philo_stat))
+				set_philo_died(philo_stat);
+			sem_post(philo_stat->s_die);
+			// usleep(1000 * 1000);
+			usleep(200);
 		}
-		sem_post(philo_stat->s_die);
-		// usleep(1000 * 1000);
-		usleep(200);
 	}
 }
 
@@ -56,6 +74,8 @@ void	*philo_routine(void *args)
 		usleep(100 * philo_stat->philo_ref->number_of_philosophers);
 	while (1)
 	{
+		if (is_philo_died(philo_stat))
+			set_philo_died(philo_stat);
 		if (philo_stat->cur_state == THINK)
 			philo_think(philo_stat);
 		else if (philo_stat->cur_state == EAT)

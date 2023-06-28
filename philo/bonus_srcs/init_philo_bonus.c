@@ -32,6 +32,7 @@ t_philo_stat *philo_stat, int idx)
 		sem_wait(philo_ref->s_full_eat);
 	pthread_create(&philo_stat->philo_thread, NULL, philo_routine, philo_stat);
 	monitoring_is_alive(philo_stat);
+	pthread_join(philo_stat->philo_thread, NULL);
 }
 
 void init_sems(t_philo_ref *philo_ref)
@@ -63,6 +64,7 @@ int	init_philo(t_philo_ref *philo_ref, t_philo_stat *philo_stat)
 {
 	int		cnt;
 	pid_t	my_pid;
+	char	**sem_die_names;
 
 	philo_ref->start_time = my_gettimeofday();
 	
