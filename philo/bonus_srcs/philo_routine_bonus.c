@@ -52,7 +52,7 @@ void	*monitoring_is_alive(void *args)
 	while (1)
 	{
 		if (philo_stat->cur_state != EAT)
-			usleep(get_sleep_time(philo_stat));
+			usleep(get_sleep_time(philo_stat) * 100);
 		else
 		{
 			sem_wait(philo_stat->s_die);
@@ -60,7 +60,7 @@ void	*monitoring_is_alive(void *args)
 				set_philo_died(philo_stat);
 			sem_post(philo_stat->s_die);
 			// usleep(1000 * 1000);
-			usleep(200);
+			usleep(200 * 100);
 		}
 	}
 }

@@ -32,7 +32,7 @@ t_philo_stat *philo_stat, int idx)
 		sem_wait(philo_ref->s_full_eat);
 	pthread_create(&philo_stat->philo_thread, NULL, philo_routine, philo_stat);
 	monitoring_is_alive(philo_stat);
-	pthread_join(philo_stat->philo_thread, NULL);
+	// pthread_join(philo_stat->philo_thread, NULL);
 }
 
 void init_sems(t_philo_ref *philo_ref)
