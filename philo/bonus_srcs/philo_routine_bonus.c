@@ -49,19 +49,19 @@ void	*monitoring_is_alive(void *args)
 	t_philo_stat	*philo_stat;
 
 	philo_stat = (t_philo_stat *)args;
-	usleep(1000 * 1000);
+	// usleep(1000 * 1000);
 	while (1)
 	{
 		// if (philo_stat->cur_state != THINK)
 		// 	// usleep(get_sleep_time(philo_stat));
 		// 	usleep(get_sleep_time(philo_stat) * 100);
-		// 	// usleep(1000 * 1000)
+		// 	// usleep(1000 * 1000);
 		// else
 		// {
-		// 	sem_wait(philo_stat->s_die);
+		// 	// sem_wait(philo_stat->s_die);
 		// 	if (is_philo_died(philo_stat))
 		// 		set_philo_died(philo_stat);
-		// 	sem_post(philo_stat->s_die);
+		// 	// sem_post(philo_stat->s_die);
 		// 	usleep(200);
 		// }
 
@@ -69,7 +69,8 @@ void	*monitoring_is_alive(void *args)
 		if (is_philo_died(philo_stat))
 			set_philo_died(philo_stat);
 		sem_post(philo_stat->s_die);
-		// usleep(200);
+		usleep(5000);
+		// usleep(1000 * 100);
 	}
 }
 
