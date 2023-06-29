@@ -37,15 +37,16 @@ INC = -I ./includes
 
 RM = rm -rf
 
-NAME = philo
+NAME = philo_bonus
 
 #-------------------------------------------
 
-MANDATORY_SRCS = $(addprefix srcs/, \
-	ft_atoi.c               ft_philosophers.c       ft_putnbr.c             init_philo.c            state_functions.c \
-	ft_parse_philo.c        ft_putchar.c            ft_strisnum.c           philo_routine.c \
+BONUS_SRCS = $(addprefix srcs/, \
+	ft_parse_philo_bonus.c  ft_putnbr_bonus.c       ft_strlen_bonus.c       state_functions_bonus.c \
+	ft_atoi_bonus.c         ft_philosophers_bonus.c ft_strdup_bonus.c       init_philo_bonus.c \
+	ft_itoa_bonus.c         ft_putchar_bonus.c      ft_strisnum_bonus.c     philo_routine_bonus.c \
 )
-MANDATORY_OBJS = $(MANDATORY_SRCS:.c=.o)
+BONUS_OBJS = $(BONUS_SRCS:.c=.o)
 
 #-------------------------------------------
 
@@ -55,17 +56,16 @@ all: $(NAME)
 	@$(CC) $(CFLAGS) $(INC) -c $< -o $@
 # -03 최적화 플래그를 사용하면 데이터 레이스가 발생하지 않는다...
 
-$(NAME): $(MANDATORY_OBJS)
+$(NAME): $(BONUS_OBJS)
 		@$(CC) $(CFLAGS) $^ -o $@
 		@echo $(GREEN)"\n==========================================================\n"$(EOC)
-		@echo $(YELLOW)"                     PHILOSOPHER DONE"$(EOC)
+		@echo $(YELLOW)"                   PHILOSOPHER BONUS DONE"$(EOC)
 		@echo $(GREEN)"\n==========================================================\n"$(EOC)
 
-bonus: 
-		@echo $(RED)"\n              THIS IS NOT S PHILO BONUS DIRECTORY !!\n"$(EOC)
+bonus: $(NAME)
 
 clean:
-		@$(RM) ${MANDATORY_OBJS}
+		@$(RM) ${BONUS_OBJS}
 		@echo $(GREEN)"\n==========================================================\n"$(EOC)
 		@echo $(YELLOW)"                     PHILOSOPHER CLEAN"
 		@echo $(GREEN)"\n==========================================================\n"$(EOC)
