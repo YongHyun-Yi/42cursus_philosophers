@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   state_functions.c                                  :+:      :+:    :+:   */
+/*   state_functions_bonus.c                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/20 12:27:35 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/06/20 12:27:40 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/06/29 16:23:15 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,12 +37,7 @@ void	philo_eat(t_philo_stat *philo_stat)
 			philo_stat->how_much_eat++;
 			if (philo_stat->philo_ref->number_of_times_must_eat \
 			== philo_stat->how_much_eat)
-			{
-				// pthread_mutex_lock(&philo_stat->philo_ref->m_full_eat);
-				// philo_stat->philo_ref->number_of_full_philosophers++;
-				// pthread_mutex_unlock(&philo_stat->philo_ref->m_full_eat);
 				sem_post(philo_stat->philo_ref->s_full_eat);
-			}
 		}
 		philo_stat->cur_state = SLEEP;
 		philo_stat->last_time_to_sleep = my_gettimeofday();
@@ -57,16 +52,12 @@ void	philo_think(t_philo_stat *philo_stat)
 	if (is_philo_died(philo_stat))
 		set_philo_died(philo_stat);
 	print_philo(philo_stat, "has taken a fork");
-
 	sem_wait(philo_stat->philo_ref->s_fork);
 	if (is_philo_died(philo_stat))
 		set_philo_died(philo_stat);
 	print_philo(philo_stat, "has taken a fork");
 	sem_wait(philo_stat->s_die);
-
 	philo_stat->cur_state = EAT;
-	// sem_wait(philo_stat->s_die);
 	philo_stat->last_time_to_eat = my_gettimeofday();
-	// sem_post(philo_stat->s_die);
 	print_philo(philo_stat, "is eating");
 }

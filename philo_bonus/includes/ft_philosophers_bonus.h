@@ -6,14 +6,12 @@
 /*   By: yonghyle <yonghyle@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/02 12:30:01 by yonghyle          #+#    #+#             */
-/*   Updated: 2023/06/27 10:58:21 by yonghyle         ###   ########.fr       */
+/*   Updated: 2023/06/29 16:27:58 by yonghyle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FT_PHILOSOPHERS_BONUS_H
 # define FT_PHILOSOPHERS_BONUS_H
-
-#include <fcntl.h>
 
 # include <string.h>
 # include <stdio.h>
@@ -77,7 +75,6 @@ int		parse_philo(t_philo_ref *philo_ref, int argc, char **argv);
 int		init_philo(t_philo_ref *philo_ref, t_philo_stat *philo_arr);
 
 void	*philo_routine(void *args);
-// void	*philo_routine(t_philo_stat	*philo_stat);
 void	*monitoring_is_alive(void *args);
 void	*check_full_eat(void *args);
 int		is_philo_died(t_philo_stat *philo_stat);
