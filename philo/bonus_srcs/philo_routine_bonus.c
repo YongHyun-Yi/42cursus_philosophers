@@ -25,14 +25,14 @@ void	*check_full_eat(void *args)
 	return (0);
 }
 
-static int	is_philo_died(t_philo_stat *philo_stat)
+int	is_philo_died(t_philo_stat *philo_stat)
 {
 	int	ret;
 
-	sem_wait(philo_stat->s_die);
+	// sem_wait(philo_stat->s_die);
 	ret = my_gettimeofday() - philo_stat->last_time_to_eat \
 	> philo_stat->philo_ref->time_to_die;
-	sem_post(philo_stat->s_die);
+	// sem_post(philo_stat->s_die);
 	return (ret);
 }
 
@@ -49,20 +49,27 @@ void	*monitoring_is_alive(void *args)
 	t_philo_stat	*philo_stat;
 
 	philo_stat = (t_philo_stat *)args;
+	usleep(1000 * 1000);
 	while (1)
 	{
-		if (philo_stat->cur_state != THINK)
-			// usleep(get_sleep_time(philo_stat));
-			usleep(get_sleep_time(philo_stat) * 100);
-			// usleep(1000 * 1000)
-		else
-		{
-			sem_wait(philo_stat->s_die);
-			if (is_philo_died(philo_stat))
-				set_philo_died(philo_stat);
-			sem_post(philo_stat->s_die);
-			usleep(200);
-		}
+		// if (philo_stat->cur_state != THINK)
+		// 	// usleep(get_sleep_time(philo_stat));
+		// 	usleep(get_sleep_time(philo_stat) * 100);
+		// 	// usleep(1000 * 1000)
+		// else
+		// {
+		// 	sem_wait(philo_stat->s_die);
+		// 	if (is_philo_died(philo_stat))
+		// 		set_philo_died(philo_stat);
+		// 	sem_post(philo_stat->s_die);
+		// 	usleep(200);
+		// }
+
+		sem_wait(philo_stat->s_die);
+		if (is_philo_died(philo_stat))
+			set_philo_died(philo_stat);
+		sem_post(philo_stat->s_die);
+		// usleep(200);
 	}
 }
 

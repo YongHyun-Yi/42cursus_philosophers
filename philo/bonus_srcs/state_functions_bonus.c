@@ -52,15 +52,21 @@ void	philo_eat(t_philo_stat *philo_stat)
 
 void	philo_think(t_philo_stat *philo_stat)
 {
+	sem_post(philo_stat->s_die);
 	sem_wait(philo_stat->philo_ref->s_fork);
+	if (is_philo_died(philo_stat))
+		set_philo_died(philo_stat);
 	print_philo(philo_stat, "has taken a fork");
 
 	sem_wait(philo_stat->philo_ref->s_fork);
+	if (is_philo_died(philo_stat))
+		set_philo_died(philo_stat);
 	print_philo(philo_stat, "has taken a fork");
+	sem_wait(philo_stat->s_die);
 
 	philo_stat->cur_state = EAT;
-	sem_wait(philo_stat->s_die);
+	// sem_wait(philo_stat->s_die);
 	philo_stat->last_time_to_eat = my_gettimeofday();
-	sem_post(philo_stat->s_die);
+	// sem_post(philo_stat->s_die);
 	print_philo(philo_stat, "is eating");
 }

@@ -80,6 +80,8 @@ void	*philo_routine(void *args);
 // void	*philo_routine(t_philo_stat	*philo_stat);
 void	*monitoring_is_alive(void *args);
 void	*check_full_eat(void *args);
+int		is_philo_died(t_philo_stat *philo_stat);
+void	set_philo_died(t_philo_stat	*philo_stat);
 
 void	philo_think(t_philo_stat *philo_stat);
 void	philo_eat(t_philo_stat *philo_stat);

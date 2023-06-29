@@ -27,7 +27,8 @@ t_philo_stat *philo_stat, int idx)
 		sem_unlink(philo_stat->s_die_name);
 		philo_stat->s_die = sem_open(philo_stat->s_die_name, O_CREAT, 0, philo_ref->number_of_philosophers);
 	}
-
+	sem_wait(philo_stat->s_die);
+	
 	if (philo_ref->s_full_eat)
 		sem_wait(philo_ref->s_full_eat);
 	pthread_create(&philo_stat->philo_thread, NULL, philo_routine, philo_stat);
