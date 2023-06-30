@@ -27,11 +27,9 @@ LINE_CLEAR  =   "\x1b[1A\x1b[M"
 
 CC = cc
 
-CFLAGS = -Wall -Wextra -Werror 
+CFLAGS = -Wall -Wextra -Werror -fsanitize=thread -g
 
 DEBUGFLAGS = -fsanitize=thread -g
-
-CFLAGS =
 
 INC = -I ./includes
 

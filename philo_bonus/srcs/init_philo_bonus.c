@@ -55,7 +55,6 @@ int	init_philo(t_philo_ref *philo_ref, t_philo_stat *philo_stat)
 {
 	int		cnt;
 	pid_t	my_pid;
-	char	**sem_die_names;
 
 	philo_ref->start_time = my_gettimeofday();
 	init_sems(philo_ref);

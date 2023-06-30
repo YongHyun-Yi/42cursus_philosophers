@@ -63,8 +63,6 @@ int	main(int argc, char **argv)
 {
 	t_philo_ref		philo_ref;
 	t_philo_stat	philo_stat;
-	int				exit_state;
-	int				cnt;
 
 	memset(&philo_ref, 0, sizeof(t_philo_ref));
 	memset(&philo_stat, 0, sizeof(t_philo_stat));
