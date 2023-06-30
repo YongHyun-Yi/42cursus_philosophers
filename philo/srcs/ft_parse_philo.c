@@ -12,6 +12,24 @@
 
 #include "ft_philosophers.h"
 
+void	free_philo(t_philo_ref *philo_ref, t_philo_stat *philo_arr)
+{
+	int	cnt;
+
+	cnt = 0;
+	while (cnt < philo_ref->number_of_philosophers)
+	{
+		pthread_mutex_destroy(&philo_ref->m_fork_arr[cnt]);
+		cnt++;
+	}
+	pthread_mutex_destroy(philo_ref->m_fork_arr);
+	pthread_mutex_destroy(&philo_ref->m_die);
+	pthread_mutex_destroy(&philo_ref->m_full_eat);
+	free(philo_arr);
+	free(philo_ref->m_fork_arr);
+	free(philo_ref->fork_arr);
+}
+
 int	parse_philo(t_philo_ref *philo_ref, int argc, char **argv)
 {
 	if (argc < 5 || argc > 6)

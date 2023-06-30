@@ -86,5 +86,6 @@ int	main(int argc, char **argv)
 		pthread_join(philo_arr[cnt].philo_thread, NULL);
 		cnt++;
 	}
+	free_philo(&philo_ref, philo_arr);
 	return (0);
 }

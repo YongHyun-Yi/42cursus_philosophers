@@ -71,6 +71,7 @@ long	get_sleep_time(t_philo_stat *philo_stat);
 int		parse_philo(t_philo_ref *philo_ref, int argc, char **argv);
 
 int		init_philo(t_philo_ref *philo_ref, t_philo_stat **philo_arr);
+void	free_philo(t_philo_ref *philo_ref, t_philo_stat *philo_arr);
 
 void	*philo_routine(void *args);
 
