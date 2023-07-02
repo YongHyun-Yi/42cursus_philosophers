@@ -34,6 +34,7 @@ typedef struct s_philo_stat
 	long				last_time_to_sleep;
 	char				*s_die_name;
 	sem_t				*s_die;
+	pthread_mutex_t				m_die;
 }	t_philo_stat;
 
 typedef struct s_philo_ref

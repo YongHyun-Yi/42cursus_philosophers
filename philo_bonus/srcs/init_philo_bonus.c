@@ -19,16 +19,12 @@ t_philo_stat *philo_stat, int idx)
 	philo_stat->last_time_to_eat = philo_ref->start_time;
 	philo_stat->philo_ref = philo_ref;
 	philo_stat->s_die_name = ft_itoa(idx);
+	pthread_mutex_init(&philo_stat->m_die, NULL);//
 	if (!philo_stat->s_die_name)
 		kill(0, SIGINT);
-	philo_stat->s_die = sem_open(philo_stat->s_die_name, O_CREAT | O_EXCL, 0, \
-	philo_ref->number_of_philosophers);
-	if (philo_stat->s_die == SEM_FAILED)
-	{
-		sem_unlink(philo_stat->s_die_name);
-		philo_stat->s_die = sem_open(philo_stat->s_die_name, O_CREAT, 0, \
-		philo_ref->number_of_philosophers);
-	}
+	sem_unlink(philo_stat->s_die_name);
+	philo_stat->s_die = sem_open(philo_stat->s_die_name, O_CREAT, 0, \
+	1);
 	sem_wait(philo_stat->s_die);
 	if (philo_ref->s_full_eat)
 		sem_wait(philo_ref->s_full_eat);
