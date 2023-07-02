@@ -19,13 +19,13 @@ t_philo_stat *philo_stat, int idx)
 	philo_stat->last_time_to_eat = philo_ref->start_time;
 	philo_stat->philo_ref = philo_ref;
 	philo_stat->s_die_name = ft_itoa(idx);
-	pthread_mutex_init(&philo_stat->m_die, NULL);//
+	// pthread_mutex_init(&philo_stat->m_die, NULL);// 얘를 초기화 했는데 왜 시간값이 이상해지는지 모르겠음;
 	if (!philo_stat->s_die_name)
 		kill(0, SIGINT);
 	sem_unlink(philo_stat->s_die_name);
 	philo_stat->s_die = sem_open(philo_stat->s_die_name, O_CREAT, 0, \
 	1);
-	sem_wait(philo_stat->s_die);
+	sem_wait(philo_stat->s_die);// 설마 얘를 들고 fork 를 하면 fork 한 프로세스도 세마포어를 들고있는지...? 포크가 아니라 스레드를 만들때
 	if (philo_ref->s_full_eat)
 		sem_wait(philo_ref->s_full_eat);
 	pthread_create(&philo_stat->philo_thread, NULL, philo_routine, philo_stat);
