@@ -46,7 +46,8 @@ void	*monitoring_is_alive(void *args)
 {
 	t_philo_stat	*philo_stat;
 
-	usleep(1000 * 1000);
+	// usleep(1000 * 1000);
+	usleep(5000);
 	philo_stat = (t_philo_stat *)args;
 	while (1)
 	{
@@ -63,9 +64,9 @@ void	*philo_routine(void *args)
 	t_philo_stat	*philo_stat;
 
 	philo_stat = (t_philo_stat *)args;
-	printf("hi~\n");
+	// printf("hi~\n");
 	sem_wait(philo_stat->s_die);
-	printf("grab s_die\n");
+	// printf("grab s_die\n");
 	if (philo_stat->philo_num % 2)
 		usleep(100 * philo_stat->philo_ref->number_of_philosophers);
 	while (1)
