@@ -25,7 +25,7 @@ t_philo_stat *philo_stat, int idx)
 	sem_unlink(philo_stat->s_die_name);
 	philo_stat->s_die = sem_open(philo_stat->s_die_name, O_CREAT, 0, \
 	1);
-	// sem_wait(philo_stat->s_die);// 설마 얘를 들고 fork 를 하면 fork 한 프로세스도 세마포어를 들고있는지...? 포크가 아니라 스레드를 만들때
+	sem_wait(philo_stat->s_die);// 설마 얘를 들고 fork 를 하면 fork 한 프로세스도 세마포어를 들고있는지...? 포크가 아니라 스레드를 만들때
 	if (philo_ref->s_full_eat)
 		sem_wait(philo_ref->s_full_eat);
 	pthread_create(&philo_stat->philo_thread, NULL, philo_routine, philo_stat);
