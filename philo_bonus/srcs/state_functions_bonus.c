@@ -53,7 +53,7 @@ void	philo_think(t_philo_stat *philo_stat)
 	sem_wait(philo_stat->philo_ref->s_fork);
 	print_philo(philo_stat, "has taken a fork");
 	sem_wait(philo_stat->s_die);
+	print_philo(philo_stat, "is eating");
 	philo_stat->cur_state = EAT;
 	philo_stat->last_time_to_eat = my_gettimeofday();
-	print_philo(philo_stat, "is eating");
 }

@@ -77,7 +77,7 @@ int		init_philo(t_philo_ref *philo_ref, t_philo_stat *philo_arr);
 void	*philo_routine(void *args);
 void	*monitoring_is_alive(void *args);
 void	*check_full_eat(void *args);
-int		is_philo_died(t_philo_stat *philo_stat);
+int		is_philo_died(const t_philo_stat *philo_stat);
 void	set_philo_died(t_philo_stat	*philo_stat);
 
 void	philo_think(t_philo_stat *philo_stat);

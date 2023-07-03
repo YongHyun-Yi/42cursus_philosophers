@@ -21,14 +21,16 @@ void	*check_full_eat(void *args)
 	cnt = philo_ref->number_of_philosophers;
 	while (cnt--)
 		sem_wait(philo_ref->s_full_eat);
+	printf("eat done\n");
 	kill(0, SIGINT);
 	return (0);
 }
 
-int	is_philo_died(t_philo_stat *philo_stat)
+int	is_philo_died(const t_philo_stat *philo_stat)
 {
 	int	ret;
 
+	printf("num: %d in philo died\n", philo_stat->philo_num + 1);
 	ret = my_gettimeofday() - philo_stat->last_time_to_eat \
 	> philo_stat->philo_ref->time_to_die;
 	return (ret);
