@@ -27,7 +27,7 @@ LINE_CLEAR  =   "\x1b[1A\x1b[M"
 
 CC = cc
 
-CFLAGS = -Wall -Wextra -Werror -fsanitize=thread -g
+CFLAGS = -Wall -Wextra -Werror #$(DEBUGFLAGS)
 
 DEBUGFLAGS = -fsanitize=thread -g
 
