@@ -30,7 +30,6 @@ int	is_philo_died(const t_philo_stat *philo_stat)
 {
 	int	ret;
 
-	printf("num: %d in philo died\n", philo_stat->philo_num + 1);
 	ret = my_gettimeofday() - philo_stat->last_time_to_eat \
 	> philo_stat->philo_ref->time_to_die;
 	return (ret);
@@ -52,8 +51,10 @@ void	*monitoring_is_alive(void *args)
 	while (1)
 	{
 		sem_wait(philo_stat->s_die);
+		g_check += 1;
 		if (is_philo_died(philo_stat))
 			set_philo_died(philo_stat);
+		g_check -= 1;
 		sem_post(philo_stat->s_die);
 		usleep(5000);
 	}
