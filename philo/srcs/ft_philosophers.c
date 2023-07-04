@@ -41,8 +41,7 @@ long	get_sleep_time(t_philo_stat *philo_stat)
 
 	sleep_time = 0;
 	if (philo_stat->cur_state == THINK)
-		// return (200);
-		return (20 * 100);
+		return (200);
 	if (philo_stat->cur_state == EAT)
 		sleep_time = philo_stat->philo_ref->time_to_eat \
 		- (my_gettimeofday() - philo_stat->last_time_to_eat);

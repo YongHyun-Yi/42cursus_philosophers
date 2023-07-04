@@ -47,7 +47,7 @@ void	philo_sleep(t_philo_stat *philo_stat)
 		print_philo(philo_stat, "is thinking");
 		if (philo_stat->philo_ref->number_of_philosophers % 2)
 			usleep ((philo_stat->philo_ref->time_to_eat \
-			- philo_stat->philo_ref->time_to_sleep) * 1000);
+			- philo_stat->philo_ref->time_to_sleep + 10) * 1000);
 	}
 }
 
