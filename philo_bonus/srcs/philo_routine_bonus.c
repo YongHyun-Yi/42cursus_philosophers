@@ -51,10 +51,8 @@ void	*monitoring_is_alive(void *args)
 	while (1)
 	{
 		sem_wait(philo_stat->s_die);
-		g_check += 1;
 		if (is_philo_died(philo_stat))
 			set_philo_died(philo_stat);
-		g_check -= 1;
 		sem_post(philo_stat->s_die);
 		usleep(5000);
 	}
