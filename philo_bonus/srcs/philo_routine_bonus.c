@@ -21,7 +21,6 @@ void	*check_full_eat(void *args)
 	cnt = philo_ref->number_of_philosophers;
 	while (cnt--)
 		sem_wait(philo_ref->s_full_eat);
-	printf("eat done\n");
 	kill(0, SIGINT);
 	return (0);
 }
